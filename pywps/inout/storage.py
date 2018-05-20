@@ -135,6 +135,67 @@ class FileStorage(StorageAbstract):
         return (STORE_TYPE.PATH, output_name, url)
 
 
+class DbStorage(StorageAbstract)
+
+    def __init__(self):
+
+        self.storage = get_db_type()
+
+
+    def store(self):
+        assert(self.storage is not None)
+        self.storage.store()
+
+
+    def get_db_type(self):
+        # get db_type from configuration 
+        try:
+            db_type = config.get_config_value('db', 'db_type')
+        except KeyError:
+            raise exception("Database type has not been specified")
+
+        # create an instance of the appropriate class
+        if db_type == "PG":
+            storage = self._PgStorage()
+        elif db_type == "MSServer":
+            storage = self._MSServerStorage()
+        elif db_type == "Oracle":
+            storage = self._OracleStorage()
+        else:
+            raise exception("Unknown database type: '{}'".format(db_type))
+
+        return storage
+
+
+    class _PgStorage()
+
+        def store():
+            ''' 
+            to be implemented
+            #create_schema() etc.
+
+            '''
+            pass
+            
+
+    class _MSServerStorage()
+
+        def store():
+            ''' 
+            to be implemented
+            '''         
+            pass
+
+
+    class _OracleStorage()
+
+        def store():
+            ''' 
+            to be implemented
+            '''
+            pass
+
+
 def get_free_space(folder):
     """ Return folder/drive free space (in bytes)
     """
