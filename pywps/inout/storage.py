@@ -35,6 +35,24 @@ class StorageAbstract(object):
         """
         pass
 
+class DbStorageAbstract(object):
+    """Database storage abstract class
+    """
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def store(self, output):
+        
+        pass
+
+
+    @abstractmethod
+    def _store_output(self, file_name, identifier):
+
+        pass
+
+
 
 class DummyStorage(StorageAbstract):
     """Dummy empty storage implementation, does nothing
