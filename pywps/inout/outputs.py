@@ -6,8 +6,9 @@
 from pywps._compat import text_type
 from pywps import E, WPS, OWS, OGCTYPE, NAMESPACES
 from pywps.inout import basic
-from pywps.inout.storage import FileStorage
+from pywps.inout.storage import FileStorage, DbStorage
 from pywps.inout.formats import Format
+from pywps import configuration as config
 from pywps.validator.mode import MODE
 import lxml.etree as etree
 import six
@@ -212,7 +213,23 @@ class ComplexOutput(basic.ComplexOutput):
         doc = WPS.Reference()
 
         # get_url will create the file and return the url for it
-        self.storage = FileStorage()
+        store_type = config.get_config_value('server', 'store_type')
+        self.storage = None
+        # chooses FileStorage or DbStorage based on a store_type value in cfg file
+        if store_type == 'db' and \
+            config.get_config_value('db', 'dbname'):
+            # TODO: more databases in config file
+            self.storage = DbStorage()
+        else:
+            self.storage = FileStorage()
+        
+        """
+        to be implemented:
+        elif store_type == 's3' and \
+           config.get_config_value('s3', 'bucket_name'):
+            self.storage = S3Storage()
+        """
+
         doc.attrib['{http://www.w3.org/1999/xlink}href'] = self.get_url()
 
         if self.data_format:
