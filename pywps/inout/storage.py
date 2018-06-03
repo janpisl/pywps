@@ -106,7 +106,7 @@ class FileStorage(StorageAbstract):
         import math
         import shutil
         import tempfile
-        import uuid
+        import uuid 
 
         file_name = output.file
         request_uuid = output.uuid or uuid.uuid1()
@@ -185,7 +185,7 @@ class DbStorage(StorageAbstract)
         return storage
 
 
-    class _PgStorage()
+    class _PgStorage(DbStorageAbstract):
 
         def __init__(self):
             # TODO: more databases in config file
@@ -267,22 +267,47 @@ class DbStorage(StorageAbstract)
             return (STORE_TYPE.DB, output.file, url)
             
 
-    class _MSServerStorage()
+    class _SQLiteStorage(DbStorageAbstract):
 
-        def store():
-            ''' 
-            to be implemented
-            '''         
-            pass
+        def __init__(self):
+
+            import sqlite3
+
+            dbsettings = "db"
+            self.dblocation = config.get_config_value(dbsettings, "dblocation")
+
+            conn = sqlite3.connect(self.dblocation)
+            conn.close()
 
 
-    class _OracleStorage()
+        def _store_output(self, file_name, identifier):
+            """ Opens output file, connects to PostGIS database and copies data there
+            """ 
+            from osgeo import ogr
+            # connect to a database and copy output there
+            LOGGER.debug("Path to the database file: {}".format(self.dblocation))
+            dsc_in = ogr.Open(file_name)
+            if dsc_in is None:
+                raise Exception("Reading data failed.")
+            dsc_out = ogr.Open(self.dblocation)
+            if dsc_out is None:
+                raise Exception("Database file could not be opened.")
+            layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
+                                      ['OVERWRITE=YES'])
+            if layer is None:
+                raise Exception("Writing output data to the database failed.")
+            # returns process identifier (defined within the process)
+            return identifier
 
-        def store():
-            ''' 
-            to be implemented
-            '''
-            pass
+
+        def store(self, output):
+            """ Creates reference that is returned to the client (database name, schema name, table name)
+            """
+            self._store_output(output.file, output.identifier)
+            url = '{}.{}'.format(self.dblocation, output.identifier)
+            # returns value for database storage defined in the STORE_TYPE class,        
+            # name of the output file and a reference
+            return (STORE_TYPE.DB, output.file, url)
 
 
 def get_free_space(folder):
