@@ -153,16 +153,17 @@ class FileStorage(StorageAbstract):
         return (STORE_TYPE.PATH, output_name, url)
 
 
-class DbStorage(StorageAbstract)
+class DbStorage(StorageAbstract):
 
     def __init__(self):
 
-        self.storage = get_db_type()
+       self.storage = self.get_db_type()
 
 
-    def store(self):
+    def store(self, output):
+
         assert(self.storage is not None)
-        self.storage.store()
+        self.storage.store(output)
 
 
     def get_db_type(self):
@@ -175,10 +176,8 @@ class DbStorage(StorageAbstract)
         # create an instance of the appropriate class
         if db_type == "PG":
             storage = self._PgStorage()
-        elif db_type == "MSServer":
-            storage = self._MSServerStorage()
-        elif db_type == "Oracle":
-            storage = self._OracleStorage()
+        elif db_type == "SQLITE":
+            storage = self._SQLiteStorage()
         else:
             raise exception("Unknown database type: '{}'".format(db_type))
 
@@ -326,3 +325,4 @@ def get_free_space(folder):
 
     LOGGER.debug('Free space: %s', free_space)
     return free_space
+
