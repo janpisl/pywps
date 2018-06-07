@@ -6,7 +6,8 @@
 from pywps._compat import text_type
 from pywps import E, WPS, OWS, OGCTYPE, NAMESPACES
 from pywps.inout import basic
-from pywps.inout.storage import FileStorage, DbStorage
+from pywps.inout.storage.file import FileStorage
+from pywps.inout.storage.db import DbStorage
 from pywps.inout.formats import Format
 from pywps import configuration as config
 from pywps.validator.mode import MODE
