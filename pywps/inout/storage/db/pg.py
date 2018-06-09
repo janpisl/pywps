@@ -85,7 +85,7 @@ class PgStorage(DbStorageAbstract):
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
-        self._store_output(output.file, output.identifier)
+        self.store_output(output.file, output.identifier)
         url = '{}.{}.{}'.format(self.dbname, self.schema_name, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
