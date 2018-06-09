@@ -220,7 +220,7 @@ class ComplexOutput(basic.ComplexOutput):
         if store_type == 'db' and \
             config.get_config_value('db', 'dbname'):
             # TODO: more databases in config file
-            self.storage = DbStorage()
+            self.storage = DbStorage.get_db_type()
         else:
             self.storage = FileStorage()
         

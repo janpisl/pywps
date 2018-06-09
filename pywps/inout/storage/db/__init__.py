@@ -19,18 +19,9 @@ LOGGER = logging.getLogger('PYWPS')
 
 class DbStorage(StorageAbstract):
 
-    def __init__(self):
 
-       self.storage = self.get_db_type()
-
-
-    def store(self, output):
-
-        assert(self.storage is not None)
-        self.storage.store(output)
-
-
-    def get_db_type(self):
+    @staticmethod
+    def get_db_type():
         # get db_type from configuration 
         try:
             db_type = config.get_config_value('db', 'db_type')
@@ -38,9 +29,9 @@ class DbStorage(StorageAbstract):
             raise exception("Database type has not been specified")
 
         # create an instance of the appropriate class
-        if db_type.lower() == "pg":
+        if db_type == "PG":
             storage = pg.PgStorage()
-        elif db_type.lower() == "sqlite":
+        elif db_type == "SQLITE":
             storage = sqlite.SQLiteStorage()
         else:
             raise exception("Unknown database type: '{}'".format(db_type))
