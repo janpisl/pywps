@@ -67,6 +67,7 @@ class PgStorage(DbStorageAbstract):
         # connect to a database and copy output there
         LOGGER.debug("Connect string: {}".format(self.target))
         dsc_in = ogr.Open(file_name)
+
         if dsc_in is None:
             raise Exception("Reading data failed.")
         dsc_out = ogr.Open("PG:" + self.target)
@@ -82,16 +83,27 @@ class PgStorage(DbStorageAbstract):
         return identifier
 
     def store_raster_output(self, file_name, identifier):
-        pass
+
+        from subprocess import call
+
+        try:
+            call(["raster2pgsql", file_name, self.schema_name +  "." + identifier, "|", "psql", "-d", self.dbname])
+        except:
+            raise Exception("Writing output data to the database failed.")
+
+        return identifier
 
 
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
+        assert(output.output_format.data_type in (0,1))
+
         if output.output_format.data_type == 0:
             self.store_vector_output(output.file, output.identifier)
-        elif output.output_format.data_type == 0:
+        else:
             self.store_raster_output(output.file, output.identifier)
+
         url = '{}.{}.{}'.format(self.dbname, self.schema_name, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
