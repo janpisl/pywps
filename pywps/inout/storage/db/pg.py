@@ -60,7 +60,7 @@ class PgStorage(DbStorageAbstract):
         return schema_name            
 
 
-    def store_output(self, file_name, identifier):
+    def store_vector_output(self, file_name, identifier):
         """ Opens output file, connects to PostGIS database and copies data there
         """ 
         from osgeo import ogr
@@ -81,11 +81,17 @@ class PgStorage(DbStorageAbstract):
         # returns process identifier (defined within the process)
         return identifier
 
+    def store_raster_output(self, file_name, identifier):
+        pass
+
 
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
-        self.store_output(output.file, output.identifier)
+        if output.output_format.data_type == 0:
+            self.store_vector_output(output.file, output.identifier)
+        elif output.output_format.data_type == 0:
+            self.store_raster_output(output.file, output.identifier)
         url = '{}.{}.{}'.format(self.dbname, self.schema_name, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
