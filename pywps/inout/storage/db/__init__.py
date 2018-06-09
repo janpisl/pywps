@@ -29,12 +29,12 @@ class DbStorage(StorageAbstract):
             raise exception("Database type has not been specified")
 
         # create an instance of the appropriate class
-        if db_type == "PG":
+        if db_type.lower() == "pg":
             storage = pg.PgStorage()
-        elif db_type == "SQLITE":
+        elif db_type.lower() == "sqlite":
             storage = sqlite.SQLiteStorage()
         else:
-            raise exception("Unknown database type: '{}'".format(db_type))
+            raise Exception("Unknown database type: '{}'".format(db_type))
 
         return storage
 
