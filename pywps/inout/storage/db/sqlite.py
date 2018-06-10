@@ -22,7 +22,7 @@ class SQLiteStorage(DbStorageAbstract):
         self.dblocation = config.get_config_value(dbsettings, "dblocation")
 
 
-    def store_output(self, file_name, identifier):
+    def store_vector_output(self, file_name, identifier):
         """ Opens output file, connects to PostGIS database and copies data there
         """ 
         from osgeo import ogr
@@ -46,10 +46,20 @@ class SQLiteStorage(DbStorageAbstract):
         return identifier
 
 
+    def store_raster_output(self, file_name, identifier):
+
+        pass
+
+
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
-        self.store_output(output.file, output.identifier)
+        assert(output.output_format.data_type in (0,1))
+
+        if output.output_format.data_type == 0:
+            self.store_vector_output(output.file, output.identifier)
+        else:
+            self.store_raster_output(output.file, output.identifier)
         url = '{}.{}'.format(self.dblocation, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
