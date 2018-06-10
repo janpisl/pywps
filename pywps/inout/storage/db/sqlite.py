@@ -21,20 +21,21 @@ class SQLiteStorage(DbStorageAbstract):
         dbsettings = "db"
         self.dblocation = config.get_config_value(dbsettings, "dblocation")
 
-        conn = sqlite3.connect(self.dblocation)
-        conn.close()
-
 
     def store_output(self, file_name, identifier):
         """ Opens output file, connects to PostGIS database and copies data there
         """ 
         from osgeo import ogr
+
+        drv = ogr.GetDriverByName("SQLite")
+        ds = drv.CreateDataSource(self.dblocation)
+
         # connect to a database and copy output there
         LOGGER.debug("Path to the database file: {}".format(self.dblocation))
         dsc_in = ogr.Open(file_name)
         if dsc_in is None:
             raise Exception("Reading data failed.")
-        dsc_out = ogr.Open(self.dblocation)
+        dsc_out = ogr.Open(self.dblocation, update=1)
         if dsc_out is None:
             raise Exception("Database file could not be opened.")
         layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
