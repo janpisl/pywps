@@ -28,20 +28,25 @@ class SQLiteStorage(DbStorageAbstract):
         from osgeo import ogr
 
         drv = ogr.GetDriverByName("SQLite")
-        ds = drv.CreateDataSource(self.dblocation)
+        dsc_out = drv.CreateDataSource(self.dblocation)
 
         # connect to a database and copy output there
         LOGGER.debug("Path to the database file: {}".format(self.dblocation))
         dsc_in = ogr.Open(file_name)
         if dsc_in is None:
             raise Exception("Reading data failed.")
-        dsc_out = ogr.Open(self.dblocation, update=1)
         if dsc_out is None:
             raise Exception("Database file could not be opened.")
         layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
                                   ['OVERWRITE=YES'])
+
+        print(layer)
         if layer is None:
             raise Exception("Writing output data to the database failed.")
+        
+        dsc_out.Destroy()
+        dsc_in.Destroy()
+
         # returns process identifier (defined within the process)
         return identifier
 
