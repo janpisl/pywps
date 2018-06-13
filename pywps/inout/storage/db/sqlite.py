@@ -23,7 +23,7 @@ class SQLiteStorage(DbStorageAbstract):
 
 
     def store_vector_output(self, file_name, identifier):
-        """ Opens output file, connects to PostGIS database and copies data there
+        """ Open output file, connect to SQLite database and copiy data there
         """ 
         from osgeo import ogr
 
@@ -40,7 +40,6 @@ class SQLiteStorage(DbStorageAbstract):
         layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
                                   ['OVERWRITE=YES'])
 
-        print(layer)
         if layer is None:
             raise Exception("Writing output data to the database failed.")
         
@@ -53,8 +52,29 @@ class SQLiteStorage(DbStorageAbstract):
 
     def store_raster_output(self, file_name, identifier):
 
-        pass
+        from osgeo import gdal
 
+        drv = gdal.GetDriverByName("SQLite")
+        dsc_out = drv.CreateDataSource(self.dblocation)
+
+        # connect to a database and copy output there
+        LOGGER.debug("Path to the database file: {}".format(self.dblocation))
+        dsc_in = gdal.Open(file_name)
+        if dsc_in is None:
+            raise Exception("Reading data failed.")
+        if dsc_out is None:
+            raise Exception("Database file could not be opened.")
+        layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
+                                  ['OVERWRITE=YES'])
+
+        if layer is None:
+            raise Exception("Writing output data to the database failed.")
+        
+        dsc_out.Destroy()
+        dsc_in.Destroy()
+
+        # returns process identifier (defined within the process)
+        return identifier
 
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
