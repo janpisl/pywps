@@ -99,7 +99,6 @@ class PgStorage(DbStorageAbstract):
     def store_other_output(self, file_name, identifier, uuid):
 
         import sqlalchemy
-        from sqlalchemy.schema import CreateSchema
             
         db = sqlalchemy.create_engine('postgresql+psycopg2://pisl:password@localhost:5432/pisl')
 
