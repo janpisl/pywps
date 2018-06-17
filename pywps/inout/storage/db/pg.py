@@ -57,7 +57,7 @@ class PgStorage(DbStorageAbstract):
         conn.commit()
         cur.close()
         conn.close()
-        
+
         return schema_name            
 
 
@@ -119,13 +119,12 @@ class PgStorage(DbStorageAbstract):
 
         assert(output.output_format.data_type in (0,1,2))
 
-
         if output.output_format.data_type == 0:
             self.store_vector_output(output.file, output.identifier)
         elif output.output_format.data_type == 1:
             self.store_raster_output(output.file, output.identifier)
         else:
-            self.store_other_output(output.file, output.identifier)
+            self.store_other_output(output.file, output.identifier, output.uuid)
 
 
         url = '{}.{}.{}'.format(self.dbname, self.schema_name, output.identifier)
