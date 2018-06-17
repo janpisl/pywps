@@ -6,6 +6,7 @@
 import logging
 from pywps import configuration as config
 from .. import DbStorageAbstract, STORE_TYPE
+import psycopg2
 
 
 LOGGER = logging.getLogger('PYWPS')
@@ -31,7 +32,6 @@ class PgStorage(DbStorageAbstract):
     def _create_schema(self):
         """ Generates random schema name, connects to PostGIS database and creates schema 
         """
-        import psycopg2
         import random
         import string
 
@@ -57,6 +57,7 @@ class PgStorage(DbStorageAbstract):
         conn.commit()
         cur.close()
         conn.close()
+        
         return schema_name            
 
 
@@ -82,6 +83,7 @@ class PgStorage(DbStorageAbstract):
         # returns process identifier (defined within the process)
         return identifier
 
+
     def store_raster_output(self, file_name, identifier):
 
         from subprocess import call
@@ -94,17 +96,40 @@ class PgStorage(DbStorageAbstract):
         return identifier
 
 
+    def store_other_output(self, file_name, identifier, uuid):
+
+        import sqlalchemy
+        from sqlalchemy.schema import CreateSchema
+            
+        db = sqlalchemy.create_engine('postgresql+psycopg2://pisl:password@localhost:5432/pisl')
+
+
+        create_table = "CREATE TABLE IF NOT EXISTS NOT EXISTS {} (uuid text, data bytea, time_stamp datetime)".format(self.schema_name.identifier)
+        insert_into_table = "INSERT INTO {} (uuid, data, time_stamp) VALUES ({}, {}, {})".format(self.schema_name.identifier, uuid, file_name, time_stamp)
+
+        db.execute(create_table)  
+        db.execute(insert_into_table)
+
+        return identifier
+
+
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
-        assert(output.output_format.data_type in (0,1))
+
+        assert(output.output_format.data_type in (0,1,2))
+
 
         if output.output_format.data_type == 0:
             self.store_vector_output(output.file, output.identifier)
-        else:
+        elif output.output_format.data_type == 1:
             self.store_raster_output(output.file, output.identifier)
+        else:
+            self.store_other_output(output.file, output.identifier)
+
 
         url = '{}.{}.{}'.format(self.dbname, self.schema_name, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
         return (STORE_TYPE.DB, output.file, url)
+
