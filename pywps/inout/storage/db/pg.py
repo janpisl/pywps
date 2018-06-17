@@ -104,7 +104,7 @@ class PgStorage(DbStorageAbstract):
         db = sqlalchemy.create_engine('postgresql+psycopg2://pisl:password@localhost:5432/pisl')
 
 
-        create_table = "CREATE TABLE IF NOT EXISTS NOT EXISTS {} (uuid text, data bytea, time_stamp datetime)".format(self.schema_name.identifier)
+        create_table = "CREATE TABLE IF NOT EXISTS {} (uuid text, data bytea, time_stamp datetime)".format(self.schema_name.identifier)
         insert_into_table = "INSERT INTO {} (uuid, data, time_stamp) VALUES ({}, {}, {})".format(self.schema_name.identifier, uuid, file_name, time_stamp)
 
         db.execute(create_table)  
