@@ -78,7 +78,7 @@ class FileStorageTestCase(unittest.TestCase):
 
 
 class PgStorageTestCase(unittest.TestCase):
-    """FileStorage tests
+    """PgStorage test
     """
 
     def setUp(self):
