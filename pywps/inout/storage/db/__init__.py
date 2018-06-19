@@ -70,6 +70,8 @@ class DbStorage(StorageAbstract):
         #Create schema; if it already exists, skip this
         try:
             engine.execute(CreateSchema(schema_name))
-        except sqlalchemy.exc.ProgrammingError:
+        # programming error - schema already exists; operational error - sqlite syntax error (schema)
+        except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
             pass
+
 
