@@ -26,39 +26,7 @@ class PgStorage(DbStorageAbstract):
             config.get_config_value(dbsettings, "port")
         )
 
-        self.schema_name = self._create_schema()
-
-
-    def _create_schema(self):
-        """ Generates random schema name, connects to PostGIS database and creates schema 
-        """
-        import random
-        import string
-
-        # random schema consisting of letters and digits 
-        N = 10
-        schema_name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(N))
-        # process based schema (TODO)
-        # schema_name = '{}_{}'.format(identifier.lower(),
-        #                              str(uuid).lower()
-        # )
-
-        # connect to a database and create schema 
-        try:
-            conn = psycopg2.connect(self.target)
-        except:
-            raise Exception ("Database connection has not been established.")
-        cur = conn.cursor()
-        query = 'CREATE SCHEMA IF NOT EXISTS "{}";'.format(schema_name)
-        try:
-            cur.execute(query)
-        except:
-            raise Exception("The query did not run succesfully.")
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        return schema_name            
+        self.schema_name = config.get_config_value(dbsettings, "schema_name")    
 
 
     def store_vector_output(self, file_name, identifier):

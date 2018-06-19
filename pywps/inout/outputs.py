@@ -220,10 +220,12 @@ class ComplexOutput(basic.ComplexOutput):
         if store_type == 'db' and \
             config.get_config_value('db', 'dbname'):
             # TODO: more databases in config file
-            self.storage = DbStorage.get_db_type()
+            db_storage_instance = DbStorage()
+            self.storage = db_storage_instance.get_db_type()
         else:
             self.storage = FileStorage()
-        
+
+
         """
         to be implemented:
         elif store_type == 's3' and \
