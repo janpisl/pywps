@@ -5,6 +5,7 @@ import tempfile
 from pywps import FORMATS
 from pywps.inout.storage import DummyStorage, STORE_TYPE
 from pywps.inout.storage.file import FileStorage
+from pywps.inout.storage.db.pg import PgStorage
 from pywps import ComplexOutput
 import os
 
@@ -74,3 +75,31 @@ class FileStorageTestCase(unittest.TestCase):
         self.assertEqual(self.storage.store(vector_output)[0], STORE_TYPE.PATH)
         self.assertIsInstance(self.storage.store(vector_output)[1], str)
         self.assertIsInstance(self.storage.store(vector_output)[2], str)
+
+
+class PgStorageTestCase(unittest.TestCase):
+    """FileStorage tests
+    """
+
+    def setUp(self):
+        global TEMP_DIRS
+        tmp_dir = tempfile.mkdtemp()
+        TEMP_DIRS.append(tmp_dir)
+
+        self.storage = PgStorage()
+
+    def tearDown(self):
+        pass
+
+    def test_file_storage(self):
+        assert isinstance(self.storage, PgStorage)
+
+
+    def test_store(self):
+        vector_output = ComplexOutput('vector', 'Vector output',
+                             supported_formats=[FORMATS.GML])
+        vector_output.file = get_vector_file()
+        vector_output.output_format = FORMATS.GML
+
+
+        self.assertEqual(self.storage.store(vector_output)[0], STORE_TYPE.DB)
