@@ -2,7 +2,7 @@ import unittest
 import atexit
 import shutil
 import tempfile
-from pywps import Format
+from pywps import FORMATS
 from pywps.inout.storage import DummyStorage
 from pywps import ComplexOutput
 import os
@@ -41,8 +41,7 @@ class DummyStorageTestCase(unittest.TestCase):
 
     def test_store(self):
         vector_output = ComplexOutput('vector', 'Vector output',
-                             supported_formats=[
-                                Format('application/gml+xml')
-                            ])
+                             supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
         assert not self.storage.store("some data")
+
