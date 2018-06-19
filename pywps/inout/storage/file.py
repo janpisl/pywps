@@ -8,7 +8,7 @@ import os
 from pywps._compat import urljoin
 from pywps.exceptions import NotEnoughStorage
 from pywps import configuration as config
-from . import StorageAbstract
+from . import StorageAbstract, STORE_TYPE
 
 LOGGER = logging.getLogger('PYWPS')
 
