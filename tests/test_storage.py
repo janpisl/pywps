@@ -25,6 +25,9 @@ def get_vector_file():
 
     return os.path.join(os.path.dirname(__file__), "data", "gml", "point.gml")
 
+def get_raster_file():
+
+    return os.path.join(os.path.dirname(__file__), "data", "geotiff", "dem.tiff")
 
 def get_connstr():
 
@@ -105,7 +108,8 @@ class PgStorageTestCase(unittest.TestCase):
         self.storage.target = "dbname=pisl user=pisl password=password host=localhost port=5432"
         #this does not work
         #self.storage.target = get_connstr()
-        self.storage.schema_name = "testovaci_schemaadssf"
+        self.storage.schema_name = "testovaci_schema"
+        self.storage.dbname = "pisl"
 
     def tearDown(self):
         pass
@@ -114,16 +118,30 @@ class PgStorageTestCase(unittest.TestCase):
         assert isinstance(self.storage, PgStorage)
 
 
-    def test_vector_store(self):
+    def test_store(self):
         vector_output = ComplexOutput('vector', 'Vector output',
                              supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
         vector_output.output_format = FORMATS.GML
+        store_vector = self.storage.store(vector_output)
+        self.assertEqual(len(store_vector), 3) 
+        self.assertEqual(store_vector[0], STORE_TYPE.DB)
+        self.assertIsInstance(store_vector[1], str)
+        self.assertIsInstance(store_vector[2], str)
 
-        self.assertEqual(len(self.storage.store(vector_output)), 3) 
-        self.assertEqual(self.storage.store(vector_output)[0], STORE_TYPE.DB)
-        self.assertIsInstance(self.storage.store(vector_output)[1], str)
-        self.assertIsInstance(self.storage.store(vector_output)[2], str)
+
+        raster_output = ComplexOutput('raster', 'Raster output',
+                             supported_formats=[FORMATS.GEOTIFF])
+        raster_output.file = get_raster_file()
+        raster_output.output_format = FORMATS.GEOTIFF
+
+        store_raster = self.storage.store(raster_output)
+        self.assertEqual(len(store_raster), 3) 
+        self.assertEqual(store_raster[0], STORE_TYPE.DB)
+        self.assertIsInstance(store_raster[1], str)
+        self.assertIsInstance(store_raster[2], str)
+
+
 
     #TODO: test raster store, test other store
     # sqlite
