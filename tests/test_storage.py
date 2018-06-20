@@ -6,6 +6,7 @@ from pywps import FORMATS
 from pywps.inout.storage import DummyStorage, STORE_TYPE
 from pywps.inout.storage.file import FileStorage
 from pywps.inout.storage.db.pg import PgStorage
+from pywps.inout.storage.db.sqlite import SQLiteStorage
 from pywps.inout.storage.db import DbStorage
 from pywps import ComplexOutput
 import os
@@ -142,6 +143,48 @@ class PgStorageTestCase(unittest.TestCase):
         self.assertIsInstance(store_raster[2], str)
 
 
+
+class SQLiteStorageTestCase(unittest.TestCase):
+    """PgStorage test
+    """
+
+    def setUp(self):
+        global TEMP_DIRS
+        tmp_dir = tempfile.mkdtemp()
+        TEMP_DIRS.append(tmp_dir)
+
+        self.storage = SQLiteStorage()
+        self.storage.dblocation = "/mnt/c/Users/Jan/Documents/GitHub/test9.sqlite"
+
+    def tearDown(self):
+        pass
+
+    def test_file_storage(self):
+        assert isinstance(self.storage, SQLiteStorage)
+
+
+    def test_store(self):
+        vector_output = ComplexOutput('vector', 'Vector output',
+                             supported_formats=[FORMATS.GML])
+        vector_output.file = get_vector_file()
+        vector_output.output_format = FORMATS.GML
+        store_vector = self.storage.store(vector_output)
+        self.assertEqual(len(store_vector), 3) 
+        self.assertEqual(store_vector[0], STORE_TYPE.DB)
+        self.assertIsInstance(store_vector[1], str)
+        self.assertIsInstance(store_vector[2], str)
+
+
+        raster_output = ComplexOutput('raster', 'Raster output',
+                             supported_formats=[FORMATS.GEOTIFF])
+        raster_output.file = get_raster_file()
+        raster_output.output_format = FORMATS.GEOTIFF
+
+        store_raster = self.storage.store(raster_output)
+        self.assertEqual(len(store_raster), 3) 
+        self.assertEqual(store_raster[0], STORE_TYPE.DB)
+        self.assertIsInstance(store_raster[1], str)
+        self.assertIsInstance(store_raster[2], str)
 
     #TODO: test raster store, test other store
     # sqlite
