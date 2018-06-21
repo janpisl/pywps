@@ -10,7 +10,7 @@ from pywps.inout.storage.db.sqlite import SQLiteStorage
 from pywps.inout.storage.db import DbStorage
 from pywps import ComplexOutput
 import os
-from pywps import configuration as config
+from pywps import configuration
 
 TEMP_DIRS=[]
 
@@ -34,11 +34,11 @@ def get_connstr():
 
     dbsettings = "db"
     target = "dbname={} user={} password={} host={} port={}".format(
-        config.get_config_value(dbsettings, "dbname"),
-        config.get_config_value(dbsettings, "user"),
-        config.get_config_value(dbsettings, "password"),
-        config.get_config_value(dbsettings, "host"),
-        config.get_config_value(dbsettings, "port")
+        configuration.get_config_value(dbsettings, "dbname"),
+        configuration.get_config_value(dbsettings, "user"),
+        configuration.get_config_value(dbsettings, "password"),
+        configuration.get_config_value(dbsettings, "host"),
+        configuration.get_config_value(dbsettings, "port")
     )
     return target
 
@@ -104,18 +104,30 @@ class PgStorageTestCase(unittest.TestCase):
         global TEMP_DIRS
         tmp_dir = tempfile.mkdtemp()
         TEMP_DIRS.append(tmp_dir)
-
         self.storage = PgStorage()
-        self.storage.target = "dbname=pisl user=pisl password=password host=localhost port=5432"
-        #this does not work
-        #self.storage.target = get_connstr()
+
+        configuration.CONFIG.set("server", "store_type", "db")
+        #when add_section('db') -> duplicate error, section db exists ; if not -> no section db ; section created in configuration.py
+        #configuration.CONFIG.add_section('db')
+        configuration.CONFIG.set("db", "db_type", "pg")
+        configuration.CONFIG.set("db", "dbname", "pisl")
+        configuration.CONFIG.set("db", "user", "pisl")
+        configuration.CONFIG.set("db", "password", "password")
+        configuration.CONFIG.set("db", "host", "localhost")
+        configuration.CONFIG.set("db", "port", "5432")
+        configuration.CONFIG.set("db", "schema_name", "testovaci_schema")
+        
+        #this does not work:
+        self.storage.target = get_connstr()
+
+        #elf.storage.target = "dbname=pisl user=pisl password=password host=localhost port=5432"
         self.storage.schema_name = "testovaci_schema"
         self.storage.dbname = "pisl"
 
     def tearDown(self):
         pass
 
-    def test_file_storage(self):
+    def test_pg_storage(self):
         assert isinstance(self.storage, PgStorage)
 
 
@@ -154,12 +166,14 @@ class SQLiteStorageTestCase(unittest.TestCase):
         TEMP_DIRS.append(tmp_dir)
 
         self.storage = SQLiteStorage()
-        self.storage.dblocation = "/mnt/c/Users/Jan/Documents/GitHub/test9.sqlite"
+        configuration.CONFIG.set("db", "dblocation", "/mnt/c/Users/Jan/Documents/GitHub/test9.sqlite")
+        self.storage.dblocation = configuration.get_config_value("db", "dblocation")
+
 
     def tearDown(self):
         pass
 
-    def test_file_storage(self):
+    def test_sqlite_storage(self):
         assert isinstance(self.storage, SQLiteStorage)
 
 
@@ -186,5 +200,4 @@ class SQLiteStorageTestCase(unittest.TestCase):
         self.assertIsInstance(store_raster[1], str)
         self.assertIsInstance(store_raster[2], str)
 
-    #TODO: test raster store, test other store
-    # sqlite
+    #TODO: test other datatype output
