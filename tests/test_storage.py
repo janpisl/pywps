@@ -30,6 +30,11 @@ def get_raster_file():
 
     return os.path.join(os.path.dirname(__file__), "data", "geotiff", "dem.tiff")
 
+
+def get_other_file():
+
+    return os.path.join(os.path.dirname(__file__), "data", "other", "test.txt")
+
 def get_connstr():
 
     dbsettings = "db"
@@ -155,6 +160,18 @@ class PgStorageTestCase(unittest.TestCase):
         self.assertIsInstance(store_raster[2], str)
 
 
+        other_output = ComplexOutput('csv', 'Other output',
+                             supported_formats=[FORMATS.TEXT])
+        other_output.file = get_other_file()
+        other_output.output_format = FORMATS.TEXT
+
+
+        store_other = self.storage.store(other_output)
+        self.assertEqual(len(store_other), 3) 
+        self.assertEqual(store_other[0], STORE_TYPE.DB)
+        self.assertIsInstance(store_other[1], str)
+        self.assertIsInstance(store_other[2], str)
+
 
 class SQLiteStorageTestCase(unittest.TestCase):
     """PgStorage test
@@ -199,5 +216,7 @@ class SQLiteStorageTestCase(unittest.TestCase):
         self.assertEqual(store_raster[0], STORE_TYPE.DB)
         self.assertIsInstance(store_raster[1], str)
         self.assertIsInstance(store_raster[2], str)
+
+
 
     #TODO: test other datatype output
