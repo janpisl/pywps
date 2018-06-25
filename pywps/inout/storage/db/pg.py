@@ -18,6 +18,7 @@ class PgStorage(DbStorageAbstract):
         # create connection string
         dbsettings = "db"
         self.dbname = config.get_config_value(dbsettings, "dbname")
+
         self.target = "dbname={} user={} password={} host={} port={}".format(
             self.dbname,
             config.get_config_value(dbsettings, "user"),
@@ -26,7 +27,7 @@ class PgStorage(DbStorageAbstract):
             config.get_config_value(dbsettings, "port")
         )
 
-        self.schema_name = config.get_config_value(dbsettings, "schema_name")    
+        self.schema_name = config.get_config_value(dbsettings, "schema_name")  
 
 
     def store_vector_output(self, file_name, identifier):
@@ -57,7 +58,7 @@ class PgStorage(DbStorageAbstract):
         from subprocess import call
 
         try:
-            call(["raster2pgsql", file_name, self.schema_name +  "." + identifier, "|", "psql", "-d", self.dbname])
+            call(["raster2pgsql", file_name, self.schema_name +  "." + identifier, "|", "psql", "-h", "localhost", "-p", "5432", "-d", self.dbname])
         except:
             raise Exception("Writing output data to the database failed.")
 
@@ -67,15 +68,24 @@ class PgStorage(DbStorageAbstract):
     def store_other_output(self, file_name, identifier, uuid):
 
         import sqlalchemy
-            
-        db = sqlalchemy.create_engine('postgresql+psycopg2://pisl:password@localhost:5432/pisl')
+        from sqlalchemy import MetaData, Table, Column, Integer, String, ForeignKey, LargeBinary, DateTime, func
 
+        file = open(file_name)
+        print(file, type(file))
+        engine = sqlalchemy.create_engine('postgresql://pisl:password@localhost:5432/pisl')
 
-        create_table = "CREATE TABLE IF NOT EXISTS {} (uuid text, data bytea, time_stamp datetime)".format(self.schema_name.identifier)
-        insert_into_table = "INSERT INTO {} (uuid, data, time_stamp) VALUES ({}, {}, {})".format(self.schema_name.identifier, uuid, file_name, time_stamp)
+        metadata = MetaData()
 
-        db.execute(create_table)  
-        db.execute(insert_into_table)
+        #print(file_name, type(file_name))
+
+        user = Table('test2', metadata,
+            Column('user_id', Integer, primary_key=True),
+            Column("uuid", String(64)),
+            Column('data', LargeBinary),
+            Column("timestamp", DateTime(timezone=True), server_default=func.now()))
+
+        metadata.create_all(engine)
+
 
         return identifier
 
