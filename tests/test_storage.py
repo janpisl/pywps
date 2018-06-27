@@ -96,10 +96,10 @@ class FileStorageTestCase(unittest.TestCase):
         vector_output.file = get_vector_file()
 
         store_file = self.storage.store(vector_output)        
-        self.assertEqual(len(store_file), 3) 
-        self.assertEqual(store_file[0], STORE_TYPE.PATH)
-        self.assertIsInstance(store_file[1], str)
-        self.assertIsInstance(store_file[2], str)
+        assert len(store_file) == 3
+        assert store_file[0] == STORE_TYPE.PATH
+        assert isinstance(store_file[1], str)
+        assert isinstance(store_file[2], str)
 
 
 class PgStorageTestCase(unittest.TestCase):
@@ -126,9 +126,8 @@ class PgStorageTestCase(unittest.TestCase):
         #this does not work:
         self.storage.target = get_connstr()
 
-        #elf.storage.target = "dbname=pisl user=pisl password=password host=localhost port=5432"
-        self.storage.schema_name = "testovaci_schema"
-        self.storage.dbname = "pisl"
+        self.storage.schema_name = configuration.get_config_value("db", "schema_name")
+        self.storage.dbname = configuration.get_config_value("db", "dbname")
 
     def tearDown(self):
         pass
@@ -137,41 +136,43 @@ class PgStorageTestCase(unittest.TestCase):
         assert isinstance(self.storage, PgStorage)
 
 
-    def test_store(self):
+    def test_store_vector(self):
         vector_output = ComplexOutput('vector', 'Vector output',
                              supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
         vector_output.output_format = FORMATS.GML
         store_vector = self.storage.store(vector_output)
-        self.assertEqual(len(store_vector), 3) 
-        self.assertEqual(store_vector[0], STORE_TYPE.DB)
-        self.assertIsInstance(store_vector[1], str)
-        self.assertIsInstance(store_vector[2], str)
+        assert len(store_vector) == 3
+        assert store_vector[0] == STORE_TYPE.DB
+        assert isinstance(store_vector[1], str)
+        assert isinstance(store_vector[2], str)
 
 
+    def test_store_raster(self):
         raster_output = ComplexOutput('raster', 'Raster output',
                              supported_formats=[FORMATS.GEOTIFF])
         raster_output.file = get_raster_file()
         raster_output.output_format = FORMATS.GEOTIFF
 
         store_raster = self.storage.store(raster_output)
-        self.assertEqual(len(store_raster), 3) 
-        self.assertEqual(store_raster[0], STORE_TYPE.DB)
-        self.assertIsInstance(store_raster[1], str)
-        self.assertIsInstance(store_raster[2], str)
+        assert len(store_raster) == 3
+        assert store_raster[0] == STORE_TYPE.DB
+        assert isinstance(store_raster[1], str)
+        assert isinstance(store_raster[2], str)
 
 
-        other_output = ComplexOutput('csv', 'Other output',
+    def test_store_other(self):
+        other_output = ComplexOutput('txt', 'Other output',
                              supported_formats=[FORMATS.TEXT])
         other_output.file = get_other_file()
         other_output.output_format = FORMATS.TEXT
 
 
         store_other = self.storage.store(other_output)
-        self.assertEqual(len(store_other), 3) 
-        self.assertEqual(store_other[0], STORE_TYPE.DB)
-        self.assertIsInstance(store_other[1], str)
-        self.assertIsInstance(store_other[2], str)
+        assert len(store_other) == 3
+        assert store_other[0] == STORE_TYPE.DB
+        assert isinstance(store_other[1], str)
+        assert isinstance(store_other[2], str)
 
 
 class SQLiteStorageTestCase(unittest.TestCase):
@@ -195,29 +196,42 @@ class SQLiteStorageTestCase(unittest.TestCase):
         assert isinstance(self.storage, SQLiteStorage)
 
 
-    def test_store(self):
+    def test_store_vector(self):
         vector_output = ComplexOutput('vector', 'Vector output',
                              supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
         vector_output.output_format = FORMATS.GML
         store_vector = self.storage.store(vector_output)
-        self.assertEqual(len(store_vector), 3) 
-        self.assertEqual(store_vector[0], STORE_TYPE.DB)
-        self.assertIsInstance(store_vector[1], str)
-        self.assertIsInstance(store_vector[2], str)
+        assert len(store_vector) == 3
+        assert store_vector[0] == STORE_TYPE.DB
+        assert isinstance(store_vector[1], str)
+        assert isinstance(store_vector[2], str)
 
 
+    def test_store_raster(self):
         raster_output = ComplexOutput('raster', 'Raster output',
                              supported_formats=[FORMATS.GEOTIFF])
         raster_output.file = get_raster_file()
         raster_output.output_format = FORMATS.GEOTIFF
 
         store_raster = self.storage.store(raster_output)
-        self.assertEqual(len(store_raster), 3) 
-        self.assertEqual(store_raster[0], STORE_TYPE.DB)
-        self.assertIsInstance(store_raster[1], str)
-        self.assertIsInstance(store_raster[2], str)
+        assert len(store_raster) == 3
+        assert store_raster[0] == STORE_TYPE.DB
+        assert isinstance(store_raster[1], str)
+        assert isinstance(store_raster[2], str)
 
 
+    def test_store_other(self):
+        other_output = ComplexOutput('txt', 'Other output',
+                             supported_formats=[FORMATS.TEXT])
+        other_output.file = get_other_file()
+        other_output.output_format = FORMATS.TEXT
 
-    #TODO: test other datatype output
+
+        store_other = self.storage.store(other_output)
+        assert len(store_other) == 3
+        assert store_other[0] == STORE_TYPE.DB
+        assert isinstance(store_other[1], str)
+        assert isinstance(store_other[2], str)
+
+
