@@ -6,7 +6,6 @@
 import logging
 from pywps import configuration as config
 from .. import DbStorageAbstract, STORE_TYPE
-import psycopg2
 
 
 LOGGER = logging.getLogger('PYWPS')
@@ -55,12 +54,13 @@ class PgStorage(DbStorageAbstract):
 
     def store_raster_output(self, file_name, identifier):
 
-        from subprocess import call
+        from subprocess import call, run, Popen, PIPE
 
-        try:
-            call(["raster2pgsql", file_name, self.schema_name +  "." + identifier, "|", "psql", "-h", "localhost", "-p", "5432", "-d", self.dbname])
-        except:
-            raise Exception("Writing output data to the database failed.")
+        command1 = ["raster2pgsql", "-a", file_name, self.schema_name +  "." + identifier]
+        p = Popen(command1,stdout=PIPE)
+        command2 = ["psql", "-h", "localhost", "-p", "5432", "-d", self.dbname]
+        run(command2,stdin=p.stdout)
+
 
         return identifier
 
