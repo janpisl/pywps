@@ -17,13 +17,14 @@ class PgStorage(DbStorageAbstract):
         # create connection string
         dbsettings = "db"
         self.dbname = config.get_config_value(dbsettings, "dbname")
+        self.user = config.get_config_value(dbsettings, "user")
+        self.password = config.get_config_value(dbsettings, "password")
+        self.host = config.get_config_value(dbsettings, "host")
+        self.port = config.get_config_value(dbsettings, "port")
+
 
         self.target = "dbname={} user={} password={} host={} port={}".format(
-            self.dbname,
-            config.get_config_value(dbsettings, "user"),
-            config.get_config_value(dbsettings, "password"),
-            config.get_config_value(dbsettings, "host"),
-            config.get_config_value(dbsettings, "port")
+            self.dbname, self.user, self.password, self.host, self.port
         )
 
         self.schema_name = config.get_config_value(dbsettings, "schema_name")  
@@ -67,24 +68,42 @@ class PgStorage(DbStorageAbstract):
 
     def store_other_output(self, file_name, identifier, uuid):
 
+        from pywps import configuration as config  
         import sqlalchemy
-        from sqlalchemy import MetaData, Table, Column, Integer, String, ForeignKey, LargeBinary, DateTime, func
+        from sqlalchemy import Column, Integer, String, LargeBinary, DateTime, func, create_engine
+        from sqlalchemy.ext.declarative import declarative_base  
+        from sqlalchemy.orm import sessionmaker
 
-        file = open(file_name)
-        print(file, type(file))
-        engine = sqlalchemy.create_engine('postgresql://pisl:password@localhost:5432/pisl')
+        base = declarative_base()
 
-        metadata = MetaData()
+        engine = sqlalchemy.create_engine('postgresql://{}:{}@{}:{}/{}'.format(
+            self.dbname,self.password,self.host,self.port,self.user
+            )
+        )
 
-        #print(file_name, type(file_name))
+        # Create table
+        class Other_output(base):  
+            __tablename__ = identifier
+            __table_args__ = {'schema' : self.schema_name}
 
-        user = Table('test2', metadata,
-            Column('user_id', Integer, primary_key=True),
-            Column("uuid", String(64)),
-            Column('data', LargeBinary),
-            Column("timestamp", DateTime(timezone=True), server_default=func.now()))
+            primary_key = Column(Integer, primary_key=True)
+            uuid = Column(String(64))
+            data = Column(LargeBinary)
+            timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
-        metadata.create_all(engine)
+        Session = sessionmaker(engine)  
+        session = Session()
+
+        base.metadata.create_all(engine)
+
+        # Open file as binary
+        with open(file_name, "rb") as data:
+            out = data.read()
+
+            # Add data to table
+            output = Other_output(uuid=uuid, data=out)  
+            session.add(output)  
+            session.commit()
 
 
         return identifier
@@ -94,7 +113,7 @@ class PgStorage(DbStorageAbstract):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
 
-        assert(output.output_format.data_type in (0,1,2))
+        #assert(output.output_format.data_type in (0,1,2))
 
         if output.output_format.data_type == 0:
             self.store_vector_output(output.file, output.identifier)
