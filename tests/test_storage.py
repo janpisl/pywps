@@ -95,10 +95,11 @@ class FileStorageTestCase(unittest.TestCase):
                              supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
 
-        self.assertEqual(len(self.storage.store(vector_output)), 3) 
-        self.assertEqual(self.storage.store(vector_output)[0], STORE_TYPE.PATH)
-        self.assertIsInstance(self.storage.store(vector_output)[1], str)
-        self.assertIsInstance(self.storage.store(vector_output)[2], str)
+        store_file = self.storage.store(vector_output)        
+        self.assertEqual(len(store_file), 3) 
+        self.assertEqual(store_file[0], STORE_TYPE.PATH)
+        self.assertIsInstance(store_file[1], str)
+        self.assertIsInstance(store_file[2], str)
 
 
 class PgStorageTestCase(unittest.TestCase):
