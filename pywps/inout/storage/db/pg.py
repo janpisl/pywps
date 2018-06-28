@@ -58,8 +58,10 @@ class PgStorage(DbStorageAbstract):
 
         from subprocess import call, run, Popen, PIPE
 
+        # Convert raster to an SQL query
         command1 = ["raster2pgsql", "-a", file_name, self.schema_name +  "." + identifier]
         p = Popen(command1,stdout=PIPE)
+        # Apply the SQL query
         command2 = ["psql", "-h", "localhost", "-p", "5432", "-d", self.dbname]
         run(command2,stdin=p.stdout)
 
