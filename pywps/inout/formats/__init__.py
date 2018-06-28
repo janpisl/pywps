@@ -21,7 +21,7 @@ from enum import Enum
 _FORMATS = namedtuple('FORMATS', 'GEOJSON, JSON, SHP, GML, GEOTIFF, WCS,'
                                  'WCS100, WCS110, WCS20, WFS, WFS100,'
                                  'WFS110, WFS20, WMS, WMS130, WMS110,'
-                                 'WMS100, TEXT, NETCDF, LAZ, LAS')
+                                 'WMS100, TEXT, CSV, NETCDF, LAZ, LAS')
 
 
 class DATA_TYPE(Enum):
@@ -34,6 +34,7 @@ class DATA_TYPE(Enum):
         known_values = [datatype.value for datatype in DATA_TYPE]
         if data_type not in known_values:
             raise Exception("Unknown data type")
+
 
 class Format(object):
     """Input/output format specification
@@ -224,9 +225,10 @@ FORMATS = _FORMATS(
     Format('application/x-ogc-wfs; version=2.0', extension='.xml', data_type=0),
     Format('application/x-ogc-wms', extension='.xml', data_type=0),
     Format('application/x-ogc-wms; version=1.3.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wms; version=1.1.0', extension='.xml', data_type=0),
+    Format('application/x-ogc-wms; sversion=1.1.0', extension='.xml', data_type=0),
     Format('application/x-ogc-wms; version=1.0.0', extension='.xml', data_type=0),
-    Format('text/plain', extension='.txt', data_type=0),
+    Format('text/plain', extension='.txt', data_type=2),
+    Format('text/csv', extension='.csv', data_type=2),
     Format('application/x-netcdf', extension='.nc', data_type=0),
     Format('application/octet-stream', extension='.laz', data_type=0),
     Format('application/octet-stream', extension='.las', data_type=0),
