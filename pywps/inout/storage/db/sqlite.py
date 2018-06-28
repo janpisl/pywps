@@ -6,6 +6,7 @@
 import logging
 from pywps import configuration as config
 from .. import DbStorageAbstract, STORE_TYPE
+from pywps.inout.formats import DATA_TYPE
 
 
 
@@ -16,10 +17,7 @@ class SQLiteStorage(DbStorageAbstract):
 
     def __init__(self):
 
-        import sqlite3
-
-        dbsettings = "db"
-        self.dblocation = config.get_config_value(dbsettings, "dblocation")
+        self.dblocation = config.get_config_value("db", "dblocation")
 
 
     def store_vector_output(self, file_name, identifier):
@@ -122,12 +120,16 @@ class SQLiteStorage(DbStorageAbstract):
     def store(self, output):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
-        assert(output.output_format.data_type in (0,1))
+
+        DATA_TYPE.is_valid_datatype(output.output_format.data_type)
 
         if output.output_format.data_type == 0:
             self.store_vector_output(output.file, output.identifier)
-        else:
+        elif output.output_format.data_type == 1:
             self.store_raster_output(output.file, output.identifier)
+        else:
+            self.store_other_output(output.file, output.identifier, output.uuid)
+
         url = '{}.{}'.format(self.dblocation, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
