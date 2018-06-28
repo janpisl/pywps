@@ -7,6 +7,7 @@ import logging
 from pywps import configuration as config
 from .. import DbStorageAbstract, STORE_TYPE
 from pywps.inout.formats import DATA_TYPE
+from pywps.exceptions import NoApplicableCode
 
 
 
@@ -34,7 +35,7 @@ class SQLiteStorage(DbStorageAbstract):
         if dsc_in is None:
             raise Exception("Reading data failed.")
         if dsc_out is None:
-            raise Exception("Database file could not be opened.")
+            raise NoApplicableCode("Database connection has not been established.")
         layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
                                   ['OVERWRITE=YES'])
 
@@ -50,14 +51,12 @@ class SQLiteStorage(DbStorageAbstract):
 
     def store_raster_output(self, file_name, identifier):
 
-        from osgeo import gdal
 
-        dsc_in = gdal.Open(file_name)
-        if dsc_in is None:
-            raise Exception("Reading data failed.")
-        ds = gdal.Translate(self.dblocation, dsc_in)
-        if ds is None:
-            raise Exception("Writing output data to the database failed.")
+
+        import subprocess
+        from subprocess import call
+
+        call(["gdal_translate", "-of", "Rasterlite", file_name, "RASTERLITE:" + self.dblocation + ",table=" + identifier])
 
         # returns process identifier (defined within the process)
         return identifier
