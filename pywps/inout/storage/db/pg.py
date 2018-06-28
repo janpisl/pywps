@@ -5,6 +5,7 @@
 
 import logging
 from pywps import configuration as config
+from pywps.exceptions import NoApplicableCode
 from .. import DbStorageAbstract, STORE_TYPE
 
 
@@ -42,7 +43,7 @@ class PgStorage(DbStorageAbstract):
             raise Exception("Reading data failed.")
         dsc_out = ogr.Open("PG:" + self.target)
         if dsc_out is None:
-            raise Exception("Database connection has not been established.")
+            raise NoApplicableCode("Database connection has not been established.")
         layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
                                   ['OVERWRITE=YES',
                                    'SCHEMA={}'.format(self.schema_name)]
