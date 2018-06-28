@@ -2,6 +2,8 @@ import unittest
 import atexit
 import shutil
 import tempfile
+import sqlalchemy
+from sqlalchemy import create_engine, inspect
 from pywps import FORMATS
 from pywps.inout.storage import DummyStorage, STORE_TYPE
 from pywps.inout.storage.file import FileStorage
@@ -11,6 +13,8 @@ from pywps.inout.storage.db import DbStorage
 from pywps import ComplexOutput
 import os
 from pywps import configuration
+
+
 
 TEMP_DIRS=[]
 
@@ -31,9 +35,16 @@ def get_raster_file():
     return os.path.join(os.path.dirname(__file__), "data", "geotiff", "dem.tiff")
 
 
-def get_other_file():
+def get_text_file():
 
     return os.path.join(os.path.dirname(__file__), "data", "other", "test.txt")
+
+def get_csv_file():
+
+    return os.path.join(os.path.dirname(__file__), "data", "other", "corn.csv")
+
+
+
 
 def set_test_configuration():
 
@@ -47,6 +58,7 @@ def set_test_configuration():
     configuration.CONFIG.set("db", "host", "localhost")
     configuration.CONFIG.set("db", "port", "5432")
     configuration.CONFIG.set("db", "schema_name", "testovaci_schema")
+    configuration.CONFIG.set("db", "dblocation", "/mnt/c/Users/Jan/Documents/GitHub/test20.sqlite")
 
 
 class DummyStorageTestCase(unittest.TestCase):
@@ -103,6 +115,7 @@ class FileStorageTestCase(unittest.TestCase):
         assert isinstance(store_file[1], str)
         assert isinstance(store_file[2], str)
 
+set_test_configuration()
 
 class PgStorageTestCase(unittest.TestCase):
     """PgStorage test
@@ -142,8 +155,6 @@ class PgStorageTestCase(unittest.TestCase):
 
 
     def test_store_vector(self):
-        import sqlalchemy
-        from sqlalchemy import create_engine, inspect
 
         vector_output = ComplexOutput('vector', 'Vector output',
                              supported_formats=[FORMATS.GML])
@@ -175,28 +186,75 @@ class PgStorageTestCase(unittest.TestCase):
         raster_output.output_format = FORMATS.GEOTIFF
 
         store_raster = self.storage.store(raster_output)
+
         assert len(store_raster) == 3
         assert store_raster[0] == STORE_TYPE.DB
         assert isinstance(store_raster[1], str)
         assert isinstance(store_raster[2], str)
 
+        # Parse reference into dbname, schema and table
+        reference = store_raster[2].split(".")
+
+        db_url = "postgresql://{}:{}@{}:{}/{}".format(
+            reference[0], self.password, self.host, self.port, self.user
+        )
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[2] in ins.get_table_names(schema=reference[1]))
+
 
     def test_store_other(self):
-        other_output = ComplexOutput('txt', 'Other output',
+        text_output = ComplexOutput('txt', 'Plain text output',
                              supported_formats=[FORMATS.TEXT])
-        other_output.file = get_other_file()
-        other_output.output_format = FORMATS.TEXT
+        text_output.file = get_text_file()
+        text_output.output_format = FORMATS.TEXT
+
+        store_text = self.storage.store(text_output)
+
+        assert len(store_text) == 3
+        assert store_text[0] == STORE_TYPE.DB
+        assert isinstance(store_text[1], str)
+        assert isinstance(store_text[2], str)
+
+        # Parse reference into dbname, schema and table
+        reference = store_text[2].split(".")
+
+        db_url = "postgresql://{}:{}@{}:{}/{}".format(
+            reference[0], self.password, self.host, self.port, self.user
+        )
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[2] in ins.get_table_names(schema=reference[1]))
 
 
-        store_other = self.storage.store(other_output)
-        assert len(store_other) == 3
-        assert store_other[0] == STORE_TYPE.DB
-        assert isinstance(store_other[1], str)
-        assert isinstance(store_other[2], str)
+        csv_output = ComplexOutput('csv', 'CSV output',
+                             supported_formats=[FORMATS.CSV])
+        csv_output.file = get_csv_file()
+        csv_output.output_format = FORMATS.CSV
+
+        store_csv = self.storage.store(csv_output)
+
+        assert len(store_csv) == 3
+        assert store_csv[0] == STORE_TYPE.DB
+        assert isinstance(store_csv[1], str)
+        assert isinstance(store_csv[2], str)
+
+        # Parse reference into dbname, schema and table
+        reference = store_csv[2].split(".")
+
+        db_url = "postgresql://{}:{}@{}:{}/{}".format(
+            reference[0], self.password, self.host, self.port, self.user
+        )
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[2] in ins.get_table_names(schema=reference[1]))
 
 
 class SQLiteStorageTestCase(unittest.TestCase):
-    """PgStorage test
+    """SQLiteStorage test
     """
 
     def setUp(self):
@@ -205,7 +263,6 @@ class SQLiteStorageTestCase(unittest.TestCase):
         TEMP_DIRS.append(tmp_dir)
 
         self.storage = SQLiteStorage()
-        configuration.CONFIG.set("db", "dblocation", "/mnt/c/Users/Jan/Documents/GitHub/test9.sqlite")
         self.storage.dblocation = configuration.get_config_value("db", "dblocation")
 
 
@@ -222,10 +279,20 @@ class SQLiteStorageTestCase(unittest.TestCase):
         vector_output.file = get_vector_file()
         vector_output.output_format = FORMATS.GML
         store_vector = self.storage.store(vector_output)
+
         assert len(store_vector) == 3
         assert store_vector[0] == STORE_TYPE.DB
         assert isinstance(store_vector[1], str)
         assert isinstance(store_vector[2], str)
+
+        # Parse reference into path to db and table
+        reference = store_vector[2].rsplit(".", 1)
+
+        db_url = "sqlite:///{}".format(reference[0])
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[1] in ins.get_table_names())
 
 
     def test_store_raster(self):
@@ -241,18 +308,63 @@ class SQLiteStorageTestCase(unittest.TestCase):
         assert isinstance(store_raster[1], str)
         assert isinstance(store_raster[2], str)
 
+        # Parse reference into path to db and table
+        reference = store_raster[2].rsplit(".", 1)
+
+        db_url = "sqlite:///{}".format(reference[0])
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+
+        assert (reference[1] + "_rasters") in ins.get_table_names()
+
+
 
     def test_store_other(self):
-        other_output = ComplexOutput('txt', 'Other output',
+
+        # Test text output
+        text_output = ComplexOutput('txt', 'Plain text output',
                              supported_formats=[FORMATS.TEXT])
-        other_output.file = get_other_file()
-        other_output.output_format = FORMATS.TEXT
+        text_output.file = get_text_file()
+        text_output.output_format = FORMATS.TEXT
+
+        store_text = self.storage.store(text_output)
+
+        assert len(store_text) == 3
+        assert store_text[0] == STORE_TYPE.DB
+        assert isinstance(store_text[1], str)
+        assert isinstance(store_text[2], str)
+
+        # Parse reference into path to db and table
+        reference = store_text[2].rsplit(".", 1)
+
+        db_url = "sqlite:///{}".format(reference[0])
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[1] in ins.get_table_names())
 
 
-        store_other = self.storage.store(other_output)
-        assert len(store_other) == 3
-        assert store_other[0] == STORE_TYPE.DB
-        assert isinstance(store_other[1], str)
-        assert isinstance(store_other[2], str)
+        # Test CSV output
+        csv_output = ComplexOutput('csv', 'CSV output',
+                             supported_formats=[FORMATS.CSV])
+        csv_output.file = get_csv_file()
+        csv_output.output_format = FORMATS.CSV
 
+        store_csv = self.storage.store(csv_output)
+
+        assert len(store_csv) == 3
+        assert store_csv[0] == STORE_TYPE.DB
+        assert isinstance(store_csv[1], str)
+        assert isinstance(store_csv[2], str)
+
+        # Parse reference into path to db and table
+        reference = store_csv[2].rsplit(".", 1)
+
+        db_url = "sqlite:///{}".format(reference[0])
+
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[1] in ins.get_table_names())
 
