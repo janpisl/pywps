@@ -58,7 +58,6 @@ def set_test_configuration():
     configuration.CONFIG.set("db", "host", "localhost")
     configuration.CONFIG.set("db", "port", "5432")
     configuration.CONFIG.set("db", "schema_name", "testovaci_schema")
-    configuration.CONFIG.set("db", "dblocation", "/mnt/c/Users/Jan/Documents/GitHub/test20.sqlite")
 
 
 class DummyStorageTestCase(unittest.TestCase):
@@ -115,7 +114,6 @@ class FileStorageTestCase(unittest.TestCase):
         assert isinstance(store_file[1], str)
         assert isinstance(store_file[2], str)
 
-set_test_configuration()
 
 class PgStorageTestCase(unittest.TestCase):
     """PgStorage test
@@ -264,6 +262,7 @@ class SQLiteStorageTestCase(unittest.TestCase):
 
         self.storage = SQLiteStorage()
         self.storage.dblocation = configuration.get_config_value("db", "dblocation")
+        configuration.CONFIG.set("db", "dblocation", "/mnt/c/Users/Jan/Documents/GitHub/test20.sqlite")
 
 
     def tearDown(self):
