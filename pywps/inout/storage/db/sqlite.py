@@ -51,8 +51,6 @@ class SQLiteStorage(DbStorageAbstract):
 
     def store_raster_output(self, file_name, identifier):
 
-
-
         import subprocess
         from subprocess import call
 
