@@ -35,17 +35,19 @@ def get_other_file():
 
     return os.path.join(os.path.dirname(__file__), "data", "other", "test.txt")
 
-def get_connstr():
+def set_test_configuration():
 
-    dbsettings = "db"
-    target = "dbname={} user={} password={} host={} port={}".format(
-        configuration.get_config_value(dbsettings, "dbname"),
-        configuration.get_config_value(dbsettings, "user"),
-        configuration.get_config_value(dbsettings, "password"),
-        configuration.get_config_value(dbsettings, "host"),
-        configuration.get_config_value(dbsettings, "port")
-    )
-    return target
+    configuration.CONFIG.set("server", "store_type", "db")
+    #when add_section('db') -> duplicate error, section db exists ; if not -> no section db ; section created in configuration.py
+    #configuration.CONFIG.add_section('db')
+    configuration.CONFIG.set("db", "db_type", "pg")
+    configuration.CONFIG.set("db", "dbname", "pisl")
+    configuration.CONFIG.set("db", "user", "pisl")
+    configuration.CONFIG.set("db", "password", "password")
+    configuration.CONFIG.set("db", "host", "localhost")
+    configuration.CONFIG.set("db", "port", "5432")
+    configuration.CONFIG.set("db", "schema_name", "testovaci_schema")
+
 
 class DummyStorageTestCase(unittest.TestCase):
     """Storage test case
@@ -112,19 +114,22 @@ class PgStorageTestCase(unittest.TestCase):
         TEMP_DIRS.append(tmp_dir)
         self.storage = PgStorage()
 
-        configuration.CONFIG.set("server", "store_type", "db")
-        #when add_section('db') -> duplicate error, section db exists ; if not -> no section db ; section created in configuration.py
-        #configuration.CONFIG.add_section('db')
-        configuration.CONFIG.set("db", "db_type", "pg")
-        configuration.CONFIG.set("db", "dbname", "pisl")
-        configuration.CONFIG.set("db", "user", "pisl")
-        configuration.CONFIG.set("db", "password", "password")
-        configuration.CONFIG.set("db", "host", "localhost")
-        configuration.CONFIG.set("db", "port", "5432")
-        configuration.CONFIG.set("db", "schema_name", "testovaci_schema")
+        set_test_configuration()
+
+
+        dbsettings = "db"
+        self.dbname = configuration.get_config_value(dbsettings, "dbname")
+        self.user = configuration.get_config_value(dbsettings, "user")
+        self.password = configuration.get_config_value(dbsettings, "password")
+        self.host = configuration.get_config_value(dbsettings, "host")
+        self.port = configuration.get_config_value(dbsettings, "port")
+
+
         
-        #this does not work:
-        self.storage.target = get_connstr()
+        self.storage.target = "dbname={} user={} password={} host={} port={}".format(
+            self.dbname, self.user, self.password, self.host, self.port
+        )
+
 
         self.storage.schema_name = configuration.get_config_value("db", "schema_name")
         self.storage.dbname = configuration.get_config_value("db", "dbname")
@@ -137,15 +142,30 @@ class PgStorageTestCase(unittest.TestCase):
 
 
     def test_store_vector(self):
+        import sqlalchemy
+        from sqlalchemy import create_engine, inspect
+
         vector_output = ComplexOutput('vector', 'Vector output',
                              supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
         vector_output.output_format = FORMATS.GML
         store_vector = self.storage.store(vector_output)
+
         assert len(store_vector) == 3
         assert store_vector[0] == STORE_TYPE.DB
         assert isinstance(store_vector[1], str)
         assert isinstance(store_vector[2], str)
+        
+        # Parse reference into dbname, schema and table
+        reference = store_vector[2].split(".")
+
+        db_url = "postgresql://{}:{}@{}:{}/{}".format(
+            reference[0], self.password, self.host, self.port, self.user
+        )
+        engine = create_engine(db_url)
+        # check if table exists
+        ins = inspect(engine)
+        assert (reference[2] in ins.get_table_names(schema=reference[1]))
 
 
     def test_store_raster(self):
@@ -215,6 +235,7 @@ class SQLiteStorageTestCase(unittest.TestCase):
         raster_output.output_format = FORMATS.GEOTIFF
 
         store_raster = self.storage.store(raster_output)
+
         assert len(store_raster) == 3
         assert store_raster[0] == STORE_TYPE.DB
         assert isinstance(store_raster[1], str)
