@@ -53,27 +53,11 @@ class SQLiteStorage(DbStorageAbstract):
         from osgeo import gdal
 
         dsc_in = gdal.Open(file_name)
-        gt =dsc_in.GetGeoTransform()
-        pixelSizeX = int(gt[1])
-        pixelSizeY =int(-gt[5])
-        drv = gdal.GetDriverByName("SQLite")
-        dsc_out = drv.Create(self.dblocation, xsize=pixelSizeY, ysize=pixelSizeY) 
-
-        # connect to a database and copy output there
-        LOGGER.debug("Path to the database file: {}".format(self.dblocation))
         if dsc_in is None:
             raise Exception("Reading data failed.")
-        if dsc_out is None:
-            raise Exception("Database file could not be opened.")
-
-        layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
-                                  ['OVERWRITE=YES'])
-
-        if layer is None:
+        ds = gdal.Translate(self.dblocation, dsc_in)
+        if ds is None:
             raise Exception("Writing output data to the database failed.")
-        
-        dsc_out.Destroy()
-        dsc_in.Destroy()
 
         # returns process identifier (defined within the process)
         return identifier
