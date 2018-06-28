@@ -27,7 +27,13 @@ _FORMATS = namedtuple('FORMATS', 'GEOJSON, JSON, SHP, GML, GEOTIFF, WCS,'
 class DATA_TYPE(Enum):
     VECTOR = 0
     RASTER = 1
+    OTHER = 2
 
+    def is_valid_datatype(data_type):
+
+        known_values = [datatype.value for datatype in DATA_TYPE]
+        if data_type not in known_values:
+            raise Exception("Unknown data type")
 
 class Format(object):
     """Input/output format specification

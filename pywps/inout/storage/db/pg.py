@@ -7,7 +7,7 @@ import logging
 from pywps import configuration as config
 from pywps.exceptions import NoApplicableCode
 from .. import DbStorageAbstract, STORE_TYPE
-
+from pywps.inout.formats import DATA_TYPE
 
 LOGGER = logging.getLogger('PYWPS')
 
@@ -114,7 +114,7 @@ class PgStorage(DbStorageAbstract):
         """ Creates reference that is returned to the client (database name, schema name, table name)
         """
 
-        #assert(output.output_format.data_type in (0,1,2))
+        DATA_TYPE.is_valid_datatype(output.output_format.data_type)
 
         if output.output_format.data_type == 0:
             self.store_vector_output(output.file, output.identifier)
