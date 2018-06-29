@@ -59,8 +59,3 @@ class DbStorageAbstract(StorageAbstract):
         
         pass
 
-
-    @abstractmethod
-    def store_output(self, file_name, identifier):
-
-        pass
