@@ -265,8 +265,12 @@ class SQLiteStorageTestCase(unittest.TestCase):
 
 
     def tearDown(self):
-        pass
-
+        # Delete temp file if exists
+        try:
+            os.remove(self.storage.dblocation)
+        except:
+            pass
+    
     def test_sqlite_storage(self):
         assert isinstance(self.storage, SQLiteStorage)
 
