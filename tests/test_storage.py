@@ -261,8 +261,7 @@ class SQLiteStorageTestCase(unittest.TestCase):
         TEMP_DIRS.append(tmp_dir)
 
         self.storage = SQLiteStorage()
-        self.storage.dblocation = configuration.get_config_value("db", "dblocation")
-        configuration.CONFIG.set("db", "dblocation", "/mnt/c/Users/Jan/Documents/GitHub/test20.sqlite")
+        self.storage.dblocation = tempfile.mktemp(suffix='.sqlite', prefix='pywpsdb-')
 
 
     def tearDown(self):
