@@ -104,12 +104,15 @@ class SQLiteStorage(DbStorageAbstract):
 
         DATA_TYPE.is_valid_datatype(output.output_format.data_type)
 
-        if output.output_format.data_type == 0:
+        if output.output_format.data_type is DATA_TYPE.VECTOR:
             self.store_vector_output(output.file, output.identifier)
-        elif output.output_format.data_type == 1:
+        elif output.output_format.data_type is DATA_TYPE.RASTER:
             self.store_raster_output(output.file, output.identifier)
-        else:
+        elif output.output_format.data_type is DATA_TYPE.OTHER:
             self.store_other_output(output.file, output.identifier, output.uuid)
+        else:
+            # This should never happen
+            raise Exception("Unknown data type")
 
         url = '{}.{}'.format(self.dblocation, output.identifier)
         # returns value for database storage defined in the STORE_TYPE class,        

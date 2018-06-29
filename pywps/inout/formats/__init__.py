@@ -31,7 +31,7 @@ class DATA_TYPE(Enum):
 
     def is_valid_datatype(data_type):
 
-        known_values = [datatype.value for datatype in DATA_TYPE]
+        known_values = [datatype for datatype in DATA_TYPE]
         if data_type not in known_values:
             raise Exception("Unknown data type")
 
@@ -210,28 +210,28 @@ class Format(object):
 
 
 FORMATS = _FORMATS(
-    Format('application/vnd.geo+json', extension='.geojson', data_type=0),
-    Format('application/json', extension='.json', data_type=0),
-    Format('application/x-zipped-shp', extension='.zip', data_type=0),
-    Format('application/gml+xml', extension='.gml', data_type=0),
-    Format('image/tiff; subtype=geotiff', extension='.tiff', data_type=1),
-    Format('application/xogc-wcs', extension='.xml', data_type=0),
-    Format('application/x-ogc-wcs; version=1.0.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wcs; version=1.1.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wcs; version=2.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wfs', extension='.xml', data_type=0),
-    Format('application/x-ogc-wfs; version=1.0.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wfs; version=1.1.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wfs; version=2.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wms', extension='.xml', data_type=0),
-    Format('application/x-ogc-wms; version=1.3.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wms; sversion=1.1.0', extension='.xml', data_type=0),
-    Format('application/x-ogc-wms; version=1.0.0', extension='.xml', data_type=0),
-    Format('text/plain', extension='.txt', data_type=2),
-    Format('text/csv', extension='.csv', data_type=2),
-    Format('application/x-netcdf', extension='.nc', data_type=0),
-    Format('application/octet-stream', extension='.laz', data_type=0),
-    Format('application/octet-stream', extension='.las', data_type=0),
+    Format('application/vnd.geo+json', extension='.geojson', data_type=DATA_TYPE.VECTOR),
+    Format('application/json', extension='.json', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-zipped-shp', extension='.zip', data_type=DATA_TYPE.VECTOR),
+    Format('application/gml+xml', extension='.gml', data_type=DATA_TYPE.VECTOR),
+    Format('image/tiff; subtype=geotiff', extension='.tiff', data_type=DATA_TYPE.RASTER),
+    Format('application/xogc-wcs', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wcs; version=1.0.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wcs; version=1.1.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wcs; version=2.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wfs', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wfs; version=1.0.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wfs; version=1.1.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wfs; version=2.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wms', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wms; version=1.3.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wms; version=1.1.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('application/x-ogc-wms; version=1.0.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
+    Format('text/plain', extension='.txt', data_type=DATA_TYPE.OTHER),
+    Format('text/csv', extension='.csv', data_type=DATA_TYPE.OTHER),
+    Format('application/x-netcdf', extension='.nc', data_type=DATA_TYPE.VECTOR),
+    Format('application/octet-stream', extension='.laz', data_type=DATA_TYPE.VECTOR),
+    Format('application/octet-stream', extension='.las', data_type=DATA_TYPE.VECTOR), 
 )
 
 
