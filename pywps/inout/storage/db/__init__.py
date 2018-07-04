@@ -135,6 +135,10 @@ class DbStorage(StorageAbstract):
         return identifier
 
 
+    def store_raster_output(self, file_name, identifier):
+        pass
+
+
     def store_other_output(self, file_name, identifier, uuid):
 
         from pywps import configuration as config  
