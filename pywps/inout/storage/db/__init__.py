@@ -116,12 +116,12 @@ class DbStorage(StorageAbstract):
            dsc_out = ogr.Open("PG:" + self.target)
 
         # connect to a database and copy output there
-        LOGGER.debug("Path to the database file: {}".format(self.target))
+        LOGGER.debug("Database: {}".format(self.target))
         dsc_in = ogr.Open(file_name)
         if dsc_in is None:
             raise Exception("Reading data failed.")
         if dsc_out is None:
-            raise NoApplicableCode("Database connection has not been established.")
+            raise NoApplicableCode("Could not connect to the database.")
         layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
                                   ['OVERWRITE=YES'])
 
@@ -138,7 +138,6 @@ class DbStorage(StorageAbstract):
     def store_other_output(self, file_name, identifier, uuid):
 
         from pywps import configuration as config  
-        import sqlalchemy
         from sqlalchemy import Column, Integer, String, LargeBinary, DateTime, func, create_engine
         from sqlalchemy.ext.declarative import declarative_base  
         from sqlalchemy.orm import sessionmaker
