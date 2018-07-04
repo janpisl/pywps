@@ -213,13 +213,10 @@ class ComplexOutput(basic.ComplexOutput):
         """
         doc = WPS.Reference()
 
-        # get_url will create the file and return the url for it
         store_type = config.get_config_value('server', 'store_type')
         self.storage = None
-        # chooses FileStorage or DbStorage based on a store_type value in cfg file
         if store_type == 'db' and \
             config.get_config_value('db', 'dbname'):
-            # TODO: more databases in config file
             db_storage_instance = DbStorage()
             self.storage = db_storage_instance.get_db_type()
         else:
