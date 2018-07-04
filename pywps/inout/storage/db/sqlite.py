@@ -5,7 +5,7 @@
 
 import logging
 from pywps import configuration as config
-from .. import DbStorageAbstract, STORE_TYPE
+from .. import STORE_TYPE
 from pywps.inout.formats import DATA_TYPE
 from pywps.exceptions import NoApplicableCode
 from . import DbStorage
@@ -58,42 +58,4 @@ class SQLiteStorage(DbStorage):
         call(["gdal_translate", "-of", "Rasterlite", file_name, "RASTERLITE:" + self.dblocation + ",table=" + identifier])
 
         # returns process identifier (defined within the process)
-        return identifier
-
-    def store_other_output(self, file_name, identifier, uuid):
-
-        from pywps import configuration as config  
-        import sqlalchemy
-        from sqlalchemy import Column, Integer, String, LargeBinary, DateTime, func, create_engine
-        from sqlalchemy.ext.declarative import declarative_base  
-        from sqlalchemy.orm import sessionmaker
-
-        base = declarative_base()
-
-        engine = sqlalchemy.create_engine("sqlite:///{}".format(self.dblocation))
-
-        # Create table
-        class Other_output(base):  
-            __tablename__ = identifier
-
-            primary_key = Column(Integer, primary_key=True)
-            uuid = Column(String(64))
-            data = Column(LargeBinary)
-            timestamp = Column(DateTime(timezone=True), server_default=func.now())
-
-        Session = sessionmaker(engine)  
-        session = Session()
-
-        base.metadata.create_all(engine)
-
-        # Open file as binary
-        with open(file_name, "rb") as data:
-            out = data.read()
-
-            # Add data to table
-            output = Other_output(uuid=uuid, data=out)  
-            session.add(output)  
-            session.commit()
-
-
         return identifier

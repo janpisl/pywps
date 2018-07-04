@@ -103,3 +103,51 @@ class DbStorage(StorageAbstract):
         # returns value for database storage defined in the STORE_TYPE class,        
         # name of the output file and a reference
         return (STORE_TYPE.DB, output.file, url)
+
+
+    def store_other_output(self, file_name, identifier, uuid):
+
+        from pywps import configuration as config  
+        import sqlalchemy
+        from sqlalchemy import Column, Integer, String, LargeBinary, DateTime, func, create_engine
+        from sqlalchemy.ext.declarative import declarative_base  
+        from sqlalchemy.orm import sessionmaker
+
+        base = declarative_base()
+
+        if isinstance(self, sqlite.SQLiteStorage):
+            engine = sqlalchemy.create_engine("sqlite:///{}".format(self.dblocation))
+        elif isinstance(self, pg.PgStorage):
+            engine = sqlalchemy.create_engine('postgresql://{}:{}@{}:{}/{}'.format(
+            self.dbname,self.password,self.host,self.port,self.user
+                )
+            )   
+
+        # Create table
+        class Other_output(base):  
+            __tablename__ = identifier
+            if isinstance(self, pg.PgStorage):
+                __table_args__ = {'schema' : self.schema_name}
+
+
+            primary_key = Column(Integer, primary_key=True)
+            uuid = Column(String(64))
+            data = Column(LargeBinary)
+            timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+        Session = sessionmaker(engine)  
+        session = Session()
+
+        base.metadata.create_all(engine)
+
+        # Open file as binary
+        with open(file_name, "rb") as data:
+            out = data.read()
+
+            # Add data to table
+            output = Other_output(uuid=uuid, data=out)  
+            session.add(output)  
+            session.commit()
+
+
+        return identifier
