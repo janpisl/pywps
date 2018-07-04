@@ -215,7 +215,7 @@ class ComplexOutput(basic.ComplexOutput):
 
         store_type = config.get_config_value('server', 'store_type')
         self.storage = None
-        if store_type == 'db'
+        if store_type == 'db':
             db_storage_instance = DbStorage()
             self.storage = db_storage_instance.get_db_type()
         else:
