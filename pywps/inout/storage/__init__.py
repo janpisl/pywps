@@ -47,15 +47,3 @@ class DummyStorage(StorageAbstract):
     def store(self, ouput):
         pass
 
-
-class DbStorageAbstract(StorageAbstract):
-    """Database storage abstract class
-    """
-
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def store(self, output):
-        
-        pass
-

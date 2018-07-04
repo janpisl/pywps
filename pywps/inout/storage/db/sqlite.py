@@ -8,13 +8,13 @@ from pywps import configuration as config
 from .. import DbStorageAbstract, STORE_TYPE
 from pywps.inout.formats import DATA_TYPE
 from pywps.exceptions import NoApplicableCode
-
+from . import DbStorage
 
 
 LOGGER = logging.getLogger('PYWPS')
 
 
-class SQLiteStorage(DbStorageAbstract):
+class SQLiteStorage(DbStorage):
 
     def __init__(self):
 
@@ -28,6 +28,7 @@ class SQLiteStorage(DbStorageAbstract):
 
         drv = ogr.GetDriverByName("SQLite")
         dsc_out = drv.CreateDataSource(self.dblocation)
+
 
         # connect to a database and copy output there
         LOGGER.debug("Path to the database file: {}".format(self.dblocation))
@@ -96,25 +97,3 @@ class SQLiteStorage(DbStorageAbstract):
 
 
         return identifier
-
-
-    def store(self, output):
-        """ Creates reference that is returned to the client (database name, schema name, table name)
-        """
-
-        DATA_TYPE.is_valid_datatype(output.output_format.data_type)
-
-        if output.output_format.data_type is DATA_TYPE.VECTOR:
-            self.store_vector_output(output.file, output.identifier)
-        elif output.output_format.data_type is DATA_TYPE.RASTER:
-            self.store_raster_output(output.file, output.identifier)
-        elif output.output_format.data_type is DATA_TYPE.OTHER:
-            self.store_other_output(output.file, output.identifier, output.uuid)
-        else:
-            # This should never happen
-            raise Exception("Unknown data type")
-
-        url = '{}.{}'.format(self.dblocation, output.identifier)
-        # returns value for database storage defined in the STORE_TYPE class,        
-        # name of the output file and a reference
-        return (STORE_TYPE.DB, output.file, url)

@@ -3,13 +3,13 @@
 # licensed under MIT, Please consult LICENSE.txt for details     #
 ##################################################################
 
-
 import logging
 from abc import ABCMeta, abstractmethod
 from pywps import configuration as config
+from pywps.inout.storage import db
+from pywps.inout.formats import DATA_TYPE
+from .. import STORE_TYPE
 from .. import StorageAbstract
-from . import sqlite
-from . import pg
 import sqlalchemy
 
 
@@ -28,12 +28,15 @@ class DbStorage(StorageAbstract):
         self.initdb()
 
 
-    def get_db_type(self):
-
+    @staticmethod
+    def get_db_type():
+        from . import sqlite
+        from . import pg
         # create an instance of the appropriate class
-        if self.db_type == "pg":
+        db_type = config.get_config_value('db', 'db_type').lower()
+        if db_type == "pg":
             storage = pg.PgStorage()
-        elif self.db_type == "sqlite":
+        elif db_type == "sqlite":
             storage = sqlite.SQLiteStorage()
         else:
             raise Exception("Unknown database type: '{}'".format(self.db_type))
@@ -75,3 +78,28 @@ class DbStorage(StorageAbstract):
             pass
 
 
+    def store(self, output):
+        """ Creates reference that is returned to the client
+        """
+
+        DATA_TYPE.is_valid_datatype(output.output_format.data_type)
+
+        if output.output_format.data_type is DATA_TYPE.VECTOR:
+            self.store_vector_output(output.file, output.identifier)
+        elif output.output_format.data_type is DATA_TYPE.RASTER:
+            self.store_raster_output(output.file, output.identifier)
+        elif output.output_format.data_type is DATA_TYPE.OTHER:
+            self.store_other_output(output.file, output.identifier, output.uuid)
+        else:
+            # This should never happen
+            raise Exception("Unknown data type")
+
+        if isinstance(self, sqlite.SQLiteStorage):
+            url = '{}.{}'.format(self.dblocation, output.identifier)
+            print(url)
+        elif isinstance(self, pg.PgStorage):
+            url = '{}.{}.{}'.format(self.dbname, self.schema_name, output.identifier)
+
+        # returns value for database storage defined in the STORE_TYPE class,        
+        # name of the output file and a reference
+        return (STORE_TYPE.DB, output.file, url)
