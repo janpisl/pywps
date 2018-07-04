@@ -6,7 +6,7 @@
 import logging
 from pywps import configuration as config
 from pywps.exceptions import NoApplicableCode
-from .. import DbStorageAbstract, STORE_TYPE
+from .. import STORE_TYPE
 from pywps.inout.formats import DATA_TYPE
 from . import DbStorage
 
