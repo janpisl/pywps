@@ -23,7 +23,6 @@ class SQLiteStorage(DbStorage):
 
     def store_raster_output(self, file_name, identifier):
 
-        import subprocess
         from subprocess import call
 
         call(["gdal_translate", "-of", "Rasterlite", file_name, "RASTERLITE:" + self.target + ",table=" + identifier])
