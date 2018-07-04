@@ -32,29 +32,6 @@ class PgStorage(DbStorage):
         self.schema_name = config.get_config_value(dbsettings, "schema_name")  
 
 
-    def store_vector_output(self, file_name, identifier):
-        """ Opens output file, connects to PostGIS database and copies data there
-        """ 
-        from osgeo import ogr
-        # connect to a database and copy output there
-        LOGGER.debug("Connect string: {}".format(self.target))
-        dsc_in = ogr.Open(file_name)
-
-        if dsc_in is None:
-            raise Exception("Reading data failed.")
-        dsc_out = ogr.Open("PG:" + self.target)
-        if dsc_out is None:
-            raise NoApplicableCode("Database connection has not been established.")
-        layer = dsc_out.CopyLayer(dsc_in.GetLayer(), identifier,
-                                  ['OVERWRITE=YES',
-                                   'SCHEMA={}'.format(self.schema_name)]
-        )
-        if layer is None:
-            raise Exception("Writing output data to the database failed.")
-        # returns process identifier (defined within the process)
-        return identifier
-
-
     def store_raster_output(self, file_name, identifier):
 
         from subprocess import call, run, Popen, PIPE

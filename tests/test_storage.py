@@ -261,13 +261,13 @@ class SQLiteStorageTestCase(unittest.TestCase):
         TEMP_DIRS.append(tmp_dir)
 
         self.storage = SQLiteStorage()
-        self.storage.dblocation = tempfile.mktemp(suffix='.sqlite', prefix='pywpsdb-')
+        self.storage.target = tempfile.mktemp(suffix='.sqlite', prefix='pywpsdb-')
 
 
     def tearDown(self):
         # Delete temp file if exists
         try:
-            os.remove(self.storage.dblocation)
+            os.remove(self.storage.target)
         except:
             pass
     
