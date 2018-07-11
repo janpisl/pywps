@@ -1,0 +1,44 @@
+
+MAP
+  NAME "testpg"
+  STATUS         ON
+  IMAGETYPE      PNG
+  EXTENT         -0.9514645979959721 -0.9863062327317470 1.0485354020040301 1.0136937672682500
+  SIZE           640 480
+  IMAGECOLOR     255 255 255
+  PROJECTION
+    "init=epsg:4326" 
+  END
+
+  WEB
+    METADATA 
+      "wms_title"                        "test sqlite"
+      "wms_onlineresource" "http://127.0.0.1/cgi-bin/mapserv?map=pywps/inout/storage/db/mapserver/testsqlite.map" 
+      "wms_enable_request" "*" 
+      "wms_srs"                          "EPSG:4326"   
+      END
+  END
+
+
+  LAYER 
+    NAME test 
+    CONNECTIONTYPE ogr 
+    CONNECTION "test11.sqlite"
+    DATA "select geometry from buff_out" 
+    STATUS DEFAULT
+    TYPE POLYGON 
+    CLASS
+      NAME          "TEST"
+      STYLE
+        COLOR        22 22 22
+        OUTLINECOLOR 32 32 32
+      END
+    END
+  END
+END
+
+
+
+
+
+
