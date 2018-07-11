@@ -1,0 +1,29 @@
+PostgreSQL request: 
+
+http://127.0.0.1/cgi-bin/mapserv?
+map=pywps/inout/storage/db/mapserver/testpg.map&
+SERVICE=WMS&
+VERSION=1.1.1&
+REQUEST=GetMap&
+LAYERS=test&
+STYLES=&
+SRS=EPSG:4326&
+BBOX=-0.9514645979959721,-0.9863062327317470,1.0485354020040301,1.0136937672682500&
+WIDTH=640&
+HEIGHT=460&
+FORMAT=image/png 
+
+SQLite request:
+
+http://127.0.0.1/cgi-bin/mapserv?
+map=pywps/inout/storage/db/mapserver/testsqlite.map&
+SERVICE=WMS&
+VERSION=1.1.1&
+REQUEST=GetMap&
+LAYERS=test&
+STYLES=&
+SRS=EPSG:4326&
+BBOX=-0.9514645979959721,-0.9863062327317470,1.0485354020040301,1.0136937672682500&
+WIDTH=640&
+HEIGHT=460&
+FORMAT=image/png 
