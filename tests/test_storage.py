@@ -48,6 +48,7 @@ def get_csv_file():
 
 def set_test_configuration():
 
+    cofiguration.load_configuration()
     configuration.CONFIG.set("server", "store_type", "db")
     #when add_section('db') -> duplicate error, section db exists ; if not -> no section db ; section created in configuration.py
     #configuration.CONFIG.add_section('db')
