@@ -25,6 +25,7 @@ class DbStorage(StorageAbstract):
         except KeyError:
             raise exception("Database type has not been specified")
 
+        self.initdb()
 
 
     @staticmethod
@@ -42,8 +43,39 @@ class DbStorage(StorageAbstract):
 
         return storage
 
+ 
     def initdb(self):
-        pass
+
+        from sqlalchemy.schema import CreateSchema
+
+        dbsettings = "db"
+        if self.db_type == "pg":
+            connstr = 'postgresql://{}:{}@{}:{}/{}'.format(
+                config.get_config_value(dbsettings, "user"),
+                config.get_config_value(dbsettings, "password"),
+                config.get_config_value(dbsettings, "host"),
+                config.get_config_value(dbsettings, "port"),
+                config.get_config_value(dbsettings, "dbname")
+            )
+        elif self.db_type == "sqlite":
+            connstr = 'sqlite:///{}'.format(
+                config.get_config_value(dbsettings, "dblocation"),
+
+            )
+        else:
+            raise Exception("Unknown database type: '{}'".format(self.db_type))
+
+
+        engine = sqlalchemy.create_engine(connstr)
+
+        schema_name = config.get_config_value('db', 'schema_name')
+
+        #Create schema; if it already exists, skip this
+        try:
+            engine.execute(CreateSchema(schema_name))
+        # programming error - schema already exists; operational error - sqlite syntax error (schema)
+        except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
+            pass
 
 
     def store(self, output):
