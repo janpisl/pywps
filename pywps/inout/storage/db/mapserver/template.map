@@ -1,0 +1,39 @@
+
+MAP
+  NAME ""
+  STATUS         ON
+  IMAGETYPE      PNG
+  EXTENT         ""
+  SIZE           640 480
+  IMAGECOLOR     255 255 255
+  PROJECTION     "" 
+  END
+
+
+
+  WEB
+    METADATA 
+      "wms_title"                        ""
+      "wms_onlineresource" "" 
+      "wms_enable_request" "*" 
+      "wms_srs"                          ""   
+      END
+  END
+
+
+  LAYER 
+    NAME ""
+    CONNECTIONTYPE "" 
+    CONNECTION ""
+    DATA "" 
+    STATUS DEFAULT
+    TYPE "" 
+    CLASS
+      NAME          ""
+      STYLE
+        COLOR        232 232 232
+        OUTLINECOLOR 32 32 32
+      END
+    END
+  END
+END
