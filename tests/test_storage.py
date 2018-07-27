@@ -47,7 +47,6 @@ def get_csv_file():
 
 
 def set_test_configuration():
-
     configuration.CONFIG.set("server", "store_type", "db")
     #when add_section('db') -> duplicate error, section db exists ; if not -> no section db ; section created in configuration.py
     #configuration.CONFIG.add_section('db')
@@ -57,7 +56,7 @@ def set_test_configuration():
     configuration.CONFIG.set("db", "password", "password")
     configuration.CONFIG.set("db", "host", "localhost")
     configuration.CONFIG.set("db", "port", "5432")
-    configuration.CONFIG.set("db", "schema_name", "testovaci_schema")
+    configuration.CONFIG.set("db", "schema_name", "test_schema")
 
 
 class DummyStorageTestCase(unittest.TestCase):
@@ -123,9 +122,9 @@ class PgStorageTestCase(unittest.TestCase):
         global TEMP_DIRS
         tmp_dir = tempfile.mkdtemp()
         TEMP_DIRS.append(tmp_dir)
+        set_test_configuration()
         self.storage = PgStorage()
 
-        set_test_configuration()
 
 
         dbsettings = "db"
@@ -153,61 +152,6 @@ class PgStorageTestCase(unittest.TestCase):
 
 
     def test_store_vector(self):
-
-        import mappyfile
-        import psycopg2
-
-
-        d = mappyfile.open('/mnt/c/Users/Jan/Documents/GitHub/pywps/pywps/inout/storage/db/mapserver/template.map')
-
-
-        d["NAME"] = "testpg1"
-
-
-        d["WEB"]["METADATA"]["wms_title"] = "testpg2"
-        d["WEB"]["METADATA"]["wms_onlineresource"] = "http://127.0.0.1/cgi-bin/mapserv?map=/mnt/c/Users/Jan/Documents/GitHub/pywps/pywps/inout/storage/db/mapserver/pg.map"
-
-        d["LAYERS"][0]["NAME"] = "test"
-        d["LAYERS"][0]["CONNECTIONTYPE"] = "postgis"
-        d["LAYERS"][0]["CONNECTION"] = self.storage.target
-        d["LAYERS"][0]["DATA"] = "wkb_geometry from " + "buff_out" #TODO: replace hard coded "buff_out"
-        d["LAYERS"][0]["CLASSES"][0]["NAME"] = "testpg4" 
-
-        # Connect to an existing database
-        conn = psycopg2.connect(self.storage.target) 
-        cur = conn.cursor()
-
-        # extent
-        cur.execute("SELECT ST_Extent(wkb_geometry) FROM buff_out;") #TODO: replace hard coded "buff_out"
-        fextent = cur.fetchone()
-        # reformat bbox (from tuple to string, remove brackets, replace "," with a " ") so it can be used in the mapfile
-        fextent_formatted = fextent[0][fextent[0].find("(")+1:fextent[0].find(")")].replace(",", " ")
-        d["EXTENT"] = fextent_formatted
-
-        # projection (returns 0)
-        cur.execute("SELECT Find_SRID('public', 'buff_out', 'wkb_geometry');")
-        fSRID = str(cur.fetchone()[0])
-        #if SRID is missing, use default value (WGS84)
-        if fSRID is None or fSRID == "0":
-            fSRID = "4326"
-        d["PROJECTION"] =  ["init=epsg:" + fSRID] 
-        d["WEB"]["METADATA"]["wms_srs"] = "EPSG:" + fSRID 
-
-
-        # geometry
-        cur.execute("SELECT ST_AsText(wkb_geometry) from buff_out;")
-        fgeom = cur.fetchone()
-        d["LAYERS"][0]["type"] = fgeom[0].split("(", 1)[0]
-
-
-        # Make the changes to the database persistent
-        conn.commit()
-        # Close communication with the database
-        cur.close()
-
-
-        fn = r"/mnt/c/Users/Jan/Documents/GitHub/test_pg_vector.map"
-        mappyfile.save(d, fn)
 
 
         vector_output = ComplexOutput('vector', 'Vector output',
