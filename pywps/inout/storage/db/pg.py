@@ -9,6 +9,7 @@ from pywps.exceptions import NoApplicableCode
 from .. import STORE_TYPE
 from pywps.inout.formats import DATA_TYPE
 from . import DbStorage
+import sqlalchemy
 
 LOGGER = logging.getLogger('PYWPS')
 
@@ -31,6 +32,8 @@ class PgStorage(DbStorage):
 
         self.schema_name = config.get_config_value(dbsettings, "schema_name")  
 
+        self.initdb()
+
 
     def store_raster_output(self, file_name, identifier):
 
@@ -45,3 +48,27 @@ class PgStorage(DbStorage):
 
 
         return identifier
+
+
+    def initdb(self):
+
+        from sqlalchemy.schema import CreateSchema
+
+        dbsettings = "db"
+        connstr = 'postgresql://{}:{}@{}:{}/{}'.format(
+            config.get_config_value(dbsettings, "user"),
+            config.get_config_value(dbsettings, "password"),
+            config.get_config_value(dbsettings, "host"),
+            config.get_config_value(dbsettings, "port"),
+            config.get_config_value(dbsettings, "dbname")
+        )
+
+        engine = sqlalchemy.create_engine(connstr)
+        schema_name = config.get_config_value('db', 'schema_name')
+
+        #Create schema; if it already exists, skip this
+        try:
+            engine.execute(CreateSchema(schema_name))
+        # programming error - schema already exists)
+        except sqlalchemy.exc.ProgrammingError:
+            pass
