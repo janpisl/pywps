@@ -153,10 +153,7 @@ class PgStorageTestCase(unittest.TestCase):
 
     def test_store_vector(self):
 
-<<<<<<< HEAD
-=======
 
->>>>>>> eb4bcb6... set test configuration before inicialization of PgStorage
         vector_output = ComplexOutput('vector', 'Vector output',
                              supported_formats=[FORMATS.GML])
         vector_output.file = get_vector_file()
