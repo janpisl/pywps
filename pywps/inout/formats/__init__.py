@@ -16,15 +16,15 @@ from collections import namedtuple
 import mimetypes
 from pywps.validator.mode import MODE
 from pywps.validator.base import emptyvalidator
-from enum import Enum
 
 _FORMATS = namedtuple('FORMATS', 'GEOJSON, JSON, SHP, GML, GEOTIFF, WCS,'
                                  'WCS100, WCS110, WCS20, WFS, WFS100,'
                                  'WFS110, WFS20, WMS, WMS130, WMS110,'
                                  'WMS100, TEXT, CSV, NETCDF, LAZ, LAS')
 
-
-class DATA_TYPE(Enum):
+# this should be Enum type (only compatible with Python 3)
+class DATA_TYPE():
+    
     VECTOR = 0
     RASTER = 1
     OTHER = 2
@@ -49,7 +49,7 @@ class Format(object):
     :param str extension: file extension
     """
 
-    def __init__(self, mime_type, data_type,
+    def __init__(self, mime_type, data_type=None,
                  schema=None, encoding=None,
                  validate=emptyvalidator, mode=MODE.SIMPLE,
                  extension=None):
