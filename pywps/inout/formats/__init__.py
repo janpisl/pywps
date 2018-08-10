@@ -26,7 +26,6 @@ _FORMATS = namedtuple('FORMATS', 'GEOJSON, JSON, SHP, GML, GEOTIFF, WCS,'
 
 # this should be Enum type (only compatible with Python 3)
 class DATA_TYPE():
-    
     VECTOR = 0
     RASTER = 1
     OTHER = 2
