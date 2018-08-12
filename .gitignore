@@ -18,4 +18,3 @@ docs/_build
 .coverage
 example.db
 *.cfg
-default-sample.cfg
