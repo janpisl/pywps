@@ -198,6 +198,7 @@ FORMATS = _FORMATS(
     Format('application/vnd.google-earth.kml+xml', extension='.kml', data_type=DATA_TYPE.VECTOR),
     Format('application/vnd.google-earth.kmz', extension='.kmz', encoding='base64', data_type=DATA_TYPE.VECTOR),
     Format('image/tiff; subtype=geotiff', extension='.tiff', encoding='base64', data_type=DATA_TYPE.RASTER),
+    Format('application/x-ogc-wcs', extension='.xml'),
     Format('application/x-ogc-wcs; version=1.0.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
     Format('application/x-ogc-wcs; version=1.1.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
     Format('application/x-ogc-wcs; version=2.0', extension='.xml', data_type=DATA_TYPE.VECTOR),
