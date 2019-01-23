@@ -9,7 +9,9 @@ WPS Output classes
 import lxml.etree as etree
 import six
 from pywps.inout import basic
-from pywps.inout.storage import FileStorage
+from pywps.inout.storage.file import FileStorage
+from pywps.inout.storage.db import DbStorage
+from pywps import configuration as config
 from pywps.validator.mode import MODE
 
 
@@ -112,10 +114,17 @@ class ComplexOutput(basic.ComplexOutput):
         if self.prop == 'url':
             data["href"] = self.url
         elif self.prop is not None:
-            self.storage = FileStorage()
-            data["href"] = self.get_url()
+            store_type = config.get_config_value('server', 'store_type')
+            self.storage = None
+            if store_type == 'db':
+                db_storage_instance = DbStorage()
+                self.storage = db_storage_instance.get_db_type()
+            else:
+                self.storage = FileStorage()
+                data["href"] = self.get_url()
 
         return data
+
 
     def _json_data(self, data):
         """Return Data node

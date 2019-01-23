@@ -5,10 +5,10 @@
 
 import logging
 import os
-from abc import ABCMeta, abstractmethod
 from pywps._compat import urljoin
 from pywps.exceptions import NotEnoughStorage
 from pywps import configuration as config
+from . import StorageAbstract, STORE_TYPE
 
 LOGGER = logging.getLogger('PYWPS')
 
@@ -67,6 +67,7 @@ class DummyStorage(StorageAbstract):
 
 
 class FileStorage(CachedStorage):
+
     """File storage implementation, stores data to file system
 
     >>> import ConfigParser
