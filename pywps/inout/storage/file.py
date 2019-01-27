@@ -6,6 +6,7 @@
 import logging
 import os
 from pywps._compat import urljoin
+from abc import ABCMeta, abstractmethod
 from pywps.exceptions import NotEnoughStorage
 from pywps import configuration as config
 from . import StorageAbstract, STORE_TYPE
