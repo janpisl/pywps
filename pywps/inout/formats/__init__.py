@@ -31,8 +31,7 @@ class DATA_TYPE():
     OTHER = 2
 
     def is_valid_datatype(data_type):
-
-        known_values = [datatype for datatype in DATA_TYPE]
+        known_values = [DATA_TYPE.VECTOR, DATA_TYPE.RASTER, DATA_TYPE.OTHER]
         if data_type not in known_values:
             raise Exception("Unknown data type")
 
