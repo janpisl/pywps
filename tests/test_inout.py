@@ -27,7 +27,7 @@ from pywps.validator.base import emptyvalidator
 from pywps.exceptions import InvalidParameterValue
 from pywps.validator.mode import MODE
 from pywps.inout.basic import UOM
-from pywps.inout.storage import FileStorage
+from pywps.inout.storage.file import FileStorage
 from pywps._compat import PY2
 
 
